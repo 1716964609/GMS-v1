@@ -5,13 +5,11 @@ import com.example.GMS_v1.Service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/users")
+@Controller
+@RequestMapping("/")
 public class UserController {
 
     private final UserService userService;
@@ -19,6 +17,21 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    @GetMapping
+    public String landingPage(){
+        return "redirect:/UserRelated/landingpage.html";
+    }
+
+    @GetMapping("/login")
+    public String loginPage(){
+        return "redirect:/UserRelated/login.html";
+    }
+
+    @GetMapping("/register")
+    public String registrationPage() {
+        return "redirect:/UserRelated/registration.html"; // Name of the HTML file without the .html extension
     }
 
     @PostMapping("/register")
@@ -30,11 +43,17 @@ public class UserController {
         return ResponseEntity.ok("User registered successfully");
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@Valid @RequestBody User loginUser) {
-        return userService.findUserByUsername(loginUser.getUsername())
-                .filter(user -> user.getPasswordHash().equals(loginUser.getPasswordHash())) // this will compare the raw password hash
-                .map(user -> ResponseEntity.ok("Login successful"))
-                .orElse(ResponseEntity.status(401).body("Invalid credentials"));
+//    @PostMapping("/login")
+//    public ResponseEntity<String> loginUser(@Valid @RequestBody User loginUser) {
+//        return userService.findUserByUsername(loginUser.getUsername())
+//                .filter(user -> user.getPasswordHash().equals(loginUser.getPasswordHash())) // this will compare the raw password hash
+//                .map(user -> ResponseEntity.ok("Login successful"))
+//                .orElse(ResponseEntity.status(401).body("Invalid credentials"));
+//    }
+
+    @GetMapping("/user/console")
+    public String adminConsole() {
+        // This method returns the admin console page after successful login
+        return "redirect:/consolepage.html";  // This should be the name of your admin console HTML page (adminConsole.html)
     }
 }
