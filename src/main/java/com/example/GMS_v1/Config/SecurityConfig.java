@@ -25,65 +25,92 @@ import java.util.Set;
 @Configuration
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
-
-    @Autowired
-
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
-        this.customUserDetailsService = customUserDetailsService;
-    }
+//    private final CustomUserDetailsService customUserDetailsService;
+//
+//    @Autowired
+//    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+//        this.customUserDetailsService = customUserDetailsService;
+//    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/","/login","/register","/UserRelated/**").permitAll()
-                        .requestMatchers("/admin/console","/consolepage.html","/consolepage.css").hasRole("ADMIN")
-                        .requestMatchers("/user/console","/consolepage_user.html","/console_user.css").hasRole("USER")
-                        .anyRequest().authenticated()
+                        .requestMatchers("/","/login","/register","/UserRelated/**").permitAll() // Public URLs
+                        .anyRequest().authenticated() // All other URLs require authentication
                 )
-                .formLogin(formLogin -> formLogin
-                        .loginPage("/login")
-                        .permitAll()
-                        .successHandler(customAuthenticationSuccessHandler())
+                .formLogin(form -> form
+                        .loginPage("/login") // Custom login page
+                        .successHandler(customAuthenticationSuccessHandler()) // Custom success handler
                 );
         return http.build();
     }
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+//        http
+//                .authorizeHttpRequests(authorize -> authorize
+//                        .requestMatchers("/","/login","/register","/UserRelated/**").permitAll()
+//                        .requestMatchers("/admin/console","/consolepage.html","/consolepage.css").hasRole("ADMIN")
+//                        .requestMatchers("/user/console","/consolepage_user.html","/console_user.css").hasRole("USER")
+//                        .anyRequest().authenticated()
+//                )
+//                .formLogin(formLogin -> formLogin
+//                        .loginPage("/login")
+//                        .permitAll()
+//                        .successHandler(customAuthenticationSuccessHandler())
+//                );
+//        return http.build();
+//    }
 
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(customUserDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    // Configure AuthenticationManager to use DaoAuthenticationProvider
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+//    @Bean
+//    public DaoAuthenticationProvider daoAuthenticationProvider() {
+//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+//        provider.setUserDetailsService(customUserDetailsService);
+//        provider.setPasswordEncoder(passwordEncoder());
+//        return provider;
+//    }
+//
+//    // Configure AuthenticationManager to use DaoAuthenticationProvider
+//    @Bean
+//    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+//        return authenticationConfiguration.getAuthenticationManager();
+//    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    public AuthenticationSuccessHandler customAuthenticationSuccessHandler(){
-        return new AuthenticationSuccessHandler() {
-            @Override
-            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-                Set<String> roles = AuthorityUtils.authorityListToSet(userDetails.getAuthorities());
-
-                if(roles.contains("ROLE_ADMIN")){
-                    response.sendRedirect("/admin/console");
-                } else if (roles.contains("ROLE_USER")) {
-                    response.sendRedirect("/user/console");
-                } else {
-                    response.sendRedirect("/");
-                }
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            System.out.println("Getting authorities");
+            String role = authentication.getAuthorities().iterator().next().getAuthority();
+            System.out.println("autho done");
+            if (role.equals("ROLE_ADMIN")) {
+                response.sendRedirect("/admin/console");
+            } else if (role.equals("ROLE_USER")) {
+                response.sendRedirect("/user/console");
+            } else {
+                response.sendRedirect("/login?error"); // Fallback in case of no matching role
             }
         };
     }
+//    public AuthenticationSuccessHandler customAuthenticationSuccessHandler(){
+//        return new AuthenticationSuccessHandler() {
+//            @Override
+//            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//                Set<String> roles = AuthorityUtils.authorityListToSet(userDetails.getAuthorities());
+//
+//                if(roles.contains("ROLE_ADMIN")){
+//                    response.sendRedirect("/admin/console");
+//                } else if (roles.contains("ROLE_USER")) {
+//                    response.sendRedirect("/user/console");
+//                } else {
+//                    response.sendRedirect("/");
+//                }
+//            }
+//        };
+//    }
 }
