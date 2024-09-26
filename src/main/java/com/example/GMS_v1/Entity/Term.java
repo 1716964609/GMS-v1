@@ -12,10 +12,10 @@ public class Term {
     @Column(name = "term_id")
     private Long termId;
 
-    @Column(name = "jp_term", nullable = false, length = 255)
+    @Column(name = "jp_term", nullable = false, columnDefinition = "TEXT")
     private String jpTerm;
 
-    @Column(name = "eng_term", nullable = false, length = 255)
+    @Column(name = "eng_term", nullable = false, columnDefinition = "TEXT")
     private String engTerm;
 
     @Column(name = "description", columnDefinition = "TEXT")
@@ -32,7 +32,16 @@ public class Term {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id", nullable = false)
-    private List list;
+    private GList list;
+
+
+    public Long getTermId() {
+        return termId;
+    }
+
+    public void setTermId(Long termId) {
+        this.termId = termId;
+    }
 
     public String getJpTerm() {
         return jpTerm;
@@ -82,11 +91,11 @@ public class Term {
         this.versionAbandoned = versionAbandoned;
     }
 
-    public List getList() {
+    public GList getList() {
         return list;
     }
 
-    public void setList(List list) {
-        this.list = list;
+    public void setList(GList GList) {
+        this.list = GList;
     }
 }

@@ -1,148 +1,223 @@
-/* General Styles */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+/* * {
     margin: 0;
     padding: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Main Console Outline */
-#outline {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 1200px;
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Header */
-#header {
-    width: 100%; /* Account for padding on both sides */
-    background-color: #333;
-    color: white;
-    padding: 10px 0;
-    text-align: center;
-    position: absolute;
-    top: -10px; /* Position above the outline */
-    left: 0;
-    border-radius: 8px 8px 0 0;
-    z-index: 1; /* Ensure header is above the content */
-}
-
-.Center {
-    margin: 0;
-    font-size: 1.5em;
-    font-weight: bold;
-}
-
-/* Left, Middle, and Right boxes */
-#leftbox, #middlebox, #rightbox {
-    background-color: #fff;
-    margin: 10px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    width: 30%;
     box-sizing: border-box;
 }
 
-#leftbox, #middlebox, #rightbox {
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+.container {
     display: flex;
     flex-direction: column;
+    height: 100vh;
 }
 
-#crud_lists input[type="button"] {
-    margin-right: 10px;
-    padding: 5px 10px;
-    background-color: #28a745;
+.header {
+    text-align: center;
+    background-color: #333;
     color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    padding: 10px;
 }
 
-#crud_lists input[type="button"]:hover {
-    background-color: #218838;
-}
-
-/* Search Input Styles */
-#input {
+.main-content {
     display: flex;
+    flex: 1;
+    padding: 20px;
+    gap: 20px;
+}
+
+.search-section, 
+.glossary-lists-section, 
+.glossary-terms-section {
+    flex: 1;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.search-form {
+    display: flex;
+    justify-content: space-between;
     gap: 10px;
-    margin-bottom: 15px;
 }
 
-#key_text {
-    flex-grow: 1;
-    padding: 5px;
-    font-size: 1em;
+.search-form input {
+    flex: 1;
+    padding: 10px;
 }
 
-#key_send {
-    padding: 6px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
+.search-form button {
+    padding: 10px 20px;
 }
 
-#key_send:hover {
-    background-color: #0056b3;
+.search-results,
+.glossary-lists-content,
+.glossary-terms-content {
+    flex: 1;
+    overflow-y: auto;
 }
 
-/* Table and Content Area */
 table {
     width: 100%;
     border-collapse: collapse;
 }
 
-table, th, td {
-    border: 1px solid #ddd;
-}
-
 th, td {
-    padding: 8px;
+    padding: 10px;
+    border: 1px solid #ccc;
     text-align: left;
 }
 
-th {
-    background-color: #f2f2f2;
-}
-
-/* Textarea Styles */
 textarea {
     width: 100%;
     height: 50px;
-    margin-bottom: 10px;
-    padding: 8px;
-    font-size: 1em;
+    padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
     resize: none;
 }
 
-#content_lists p {
-    margin: 10px 0 5px;
-    font-weight: bold;
+.glossary-lists-header,
+.glossary-terms-header {
+    display: flex;
+    gap: 10px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    #outline {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    #leftbox, #middlebox, #rightbox {
-        width: 100%;
-    }
+.glossary-lists-header button,
+.glossary-terms-header button {
+    padding: 10px 20px;
+}
+
+.footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+} */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.header {
+    text-align: center;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* Five columns */
+    gap: 20px;
+    flex: 1;
+    padding: 20px;
+}
+
+.search-section {
+    grid-column: span 1; /* Single column */
+    background-color: white;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.search-form {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 10px;
+}
+
+.search-form button {
+    padding: 10px 20px;
+}
+
+.search-results {
+    flex: 1;
+    overflow-y: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #000; /* Visible table border */
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #000; /* Visible table border */
+    text-align: left;
+}
+
+textarea {
+    width: 100%;
+    height: 50px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    resize: none;
+}
+
+.glossary-lists-section,
+.glossary-list-details-section,
+.glossary-terms-section,
+.glossary-term-details-section {
+    background-color: white;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 10px;
+    overflow-y: auto; /* Scrollable content */
+}
+
+.glossary-lists-section, 
+.glossary-terms-section {
+    grid-column: span 1; /* Left columns for lists and terms */
+}
+
+.glossary-list-details-section, 
+.glossary-term-details-section {
+    grid-column: span 1; /* Right columns for list and term details */
+}
+
+.glossary-lists-header,
+.glossary-terms-header {
+    display: flex;
+    gap: 10px;
+}
+
+.glossary-lists-header button,
+.glossary-terms-header button {
+    padding: 10px 20px;
+}
+
+.footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
 }

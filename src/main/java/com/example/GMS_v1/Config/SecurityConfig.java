@@ -88,14 +88,15 @@ public class SecurityConfig {
             String role = authentication.getAuthorities().iterator().next().getAuthority();
             System.out.println("autho done");
             if (role.equals("ROLE_ADMIN")) {
-                response.sendRedirect("/admin/console");
+                response.sendRedirect("/console/admin");
             } else if (role.equals("ROLE_USER")) {
-                response.sendRedirect("/user/console");
+                response.sendRedirect("/console/user");
             } else {
                 response.sendRedirect("/login?error"); // Fallback in case of no matching role
             }
         };
     }
+
 //    public AuthenticationSuccessHandler customAuthenticationSuccessHandler(){
 //        return new AuthenticationSuccessHandler() {
 //            @Override

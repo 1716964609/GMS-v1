@@ -1,79 +1,111 @@
 <!DOCTYPE html>
-<html lang="jp">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Console for Administrator</title>
+    <title>Translation Glossary Management System</title>
     <link rel="stylesheet" href="consolepage.css">
+    <script src="consolepage.js" defer></script>
 </head>
 <body>
-    <div id="outline">
-        <div id="header"><p class="Center">用語管理システム</p></div>
-        <div id="leftbox">
-            <div id="input">
-                <input type="text" id="key_text">
-                <input type="button" value="検索" id="key_send">
-            </div>
-            <div id="counter"></div>
-            <div id="lefttable">
-                <table id="select_table">
-                    <tr>test1</tr><br>
-                    <tr>test2</tr><br>
-                    <tr>test3</tr><br>
-                    <tr>test4</tr><br>
-                    <tr>test5</tr><br>
-                    <tr>test6</tr><br>
-                    <tr>test7</tr><br>
-                    <tr>test8</tr><br>
-                    <tr>test9</tr><br>
-                    <tr>test10</tr>
-                </table></div>
-        </div>
-        <div id="middlebox">
-            <div id="crud_lists">
-                <input type="button" value="新規" id="new_list">
-                <input type="button" value="更新" id="update">
-                <input type="button" value="削除" id="delete">
-            </div>
-            <div id="table_lists">
-                <table id="select_table_lists">
-                    <tr>test1</tr><br>
+    <div class="container">
+        <header class="header">
+            <h1>Translation Glossary Management System</h1>
+        </header>
 
-                    <tr>test10</tr>
-                </table>
-            </div>
-            <div id="content_lists">
-                <p>リスト名</p>
-                <textarea name="" id=""></textarea>
-                <p>リストバージョン</p>
-                <textarea name="" id=""></textarea>
-                <p>コメント</p>
-                <textarea name="" id=""></textarea>
-            </div>
-        </div>
-        <div id="rightbox">
-            <div id="crud_lists">
-                <input type="button" value="新規" id="new">
-                <input type="button" value="更新" id="update">
-                <input type="button" value="削除" id="delete">
-            </div>
-            <div id="table_lists">
-                <table id="select_table_lists">
-                    <tr>test1</tr><br>
-                    <tr>test10</tr>
-                </table>
-            </div>
-            <div id="content_lists">
-                <p>日本語</p>
-                <textarea name="" id=""></textarea>
-                <p>英語</p>
-                <textarea name="" id=""></textarea>
-                <p>用語バージョン</p>
-                <textarea name="" id=""></textarea>
-                <p>コメント</p>
-                <textarea name="" id=""></textarea>
-            </div>
-        </div>
+        <main class="main-content">
+            <!-- Search section -->
+            <section class="search-section">
+                <form class="search-form">
+                    <input type="text" placeholder="Search form" id="search-input">
+                    <button type="submit">Search</button>
+                </form>
+                <div class="search-results">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Search Results</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Search results go here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Glossary Lists Section: Left Column -->
+            <section class="glossary-lists-section">
+                <div class="glossary-lists-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>List Names</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- List names go here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Glossary Lists Section: Right Column -->
+            <section class="glossary-list-details-section">
+                <div class="glossary-lists-header">
+                    <button>New</button>
+                    <button>Update</button>
+                    <button>Delete</button>
+                </div>
+                <div class="glossary-list-details-content">
+                    <p>List Name</p>
+                    <textarea placeholder="Text area for list name"></textarea>
+                    <p>Version</p>
+                    <textarea placeholder="Text area for version"></textarea>
+                    <p>Content</p>
+                    <textarea placeholder="Text area for content"></textarea>
+                </div>
+            </section>
+
+            <!-- Glossary Terms Section: Left Column -->
+            <section class="glossary-terms-section">
+                <div class="glossary-terms-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Terms</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Glossary terms go here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Glossary Terms Section: Right Column -->
+            <section class="glossary-term-details-section">
+                <div class="glossary-terms-header">
+                    <button>New</button>
+                    <button>Update</button>
+                    <button>Delete</button>
+                </div>
+                <div class="glossary-term-details-content">
+                    <p>JP Term Name</p>
+                    <textarea placeholder="Text area for JP term name"></textarea>
+                    <p>EN Term Name</p>
+                    <textarea placeholder="Text area for EN term name"></textarea>
+                    <p>Term Version</p>
+                    <textarea placeholder="Text area for term version"></textarea>
+                    <p>Term Content</p>
+                    <textarea placeholder="Text area for term content"></textarea>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>Footer</p>
+        </footer>
     </div>
 </body>
 </html>

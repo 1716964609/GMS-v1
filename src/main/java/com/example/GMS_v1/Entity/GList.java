@@ -2,14 +2,12 @@ package com.example.GMS_v1.Entity;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "list")
-public class List {
+public class GList {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,5 +78,13 @@ public class List {
 
     public void setTerms(Set<Term> terms) {
         this.terms = terms;
+    }
+
+    public Long getListId() {
+        return listId;
+    }
+
+    public void setListId(Long listId) {
+        this.listId = listId;
     }
 }

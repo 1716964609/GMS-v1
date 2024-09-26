@@ -31,12 +31,12 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("user/console")
+    @GetMapping("/console/user")
     public String userConsole(){
         return "redirect:/consolepage_user.html";
     }
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/console")
+    @GetMapping("/console/admin")
     public String adminConsole() {
         // This method returns the admin console page after successful login
         return "redirect:/consolepage.html";  // This should be the name of your admin console HTML page (adminConsole.html)
