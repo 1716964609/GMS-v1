@@ -159,6 +159,7 @@ body {
 .search-results {
     flex: 1;
     overflow-y: auto;
+    max-height: 75vh;
 }
 
 table {
@@ -197,6 +198,8 @@ textarea {
 .glossary-lists-section, 
 .glossary-terms-section {
     grid-column: span 1; /* Left columns for lists and terms */
+    max-height: 75vh;
+    overflow-y: auto;
 }
 
 .glossary-list-details-section, 
