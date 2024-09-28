@@ -119,7 +119,7 @@
             document.querySelector('.glossary-list-details-content textarea:nth-child(4)').value = item.versionNow; // Version Now
             document.querySelector('.glossary-list-details-content textarea:nth-child(6)').value = item.description; // Description
 
-            // Populate term details
+            // Clear term details
             document.querySelector('.glossary-term-details-content textarea:nth-child(2)').value = ""; // JP Term Name
             document.querySelector('.glossary-term-details-content textarea:nth-child(4)').value = ""; // EN Term Name
             document.querySelector('.glossary-term-details-content textarea:nth-child(6)').value = ""; // Term Version
