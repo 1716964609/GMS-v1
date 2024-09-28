@@ -99,9 +99,67 @@
                     <textarea placeholder="Text area for term version"></textarea>
                     <p>Term Content</p>
                     <textarea placeholder="Text area for term content"></textarea>
+                    <p>List Belonging</p>
+                    <textarea placeholder="Text area for term List Belonging"></textarea>
                 </div>
             </section>
         </main>
+
+        <!-- Create New List Modal -->
+        <div id="list-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Create a New List</h3>
+                <form id="list-form">
+                    <label for="list-name">List Name:</label>
+                    <input type="text" id="list-name" name="listName" required>
+
+                    <label for="list-description">Description:</label>
+                    <textarea id="list-description" name="listDescription" required></textarea>
+
+                    <label for="version-created-list">Version Created:</label>
+                    <input type="text" id="version-created-list" name="versionCreated" required placeholder="e.g., 1.0.0">
+
+                    <label for="version-now-list">Current Version:</label>
+                    <input type="text" id="version-now-list" name="versionNow" required placeholder="e.g., 1.2.3">
+
+                    <label for="version-abandoned-list">Version Abandoned (if any):</label>
+                    <input type="text" id="version-abandoned-list" name="versionAbandoned" placeholder="e.g., 1.1.0">
+
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+
+<!-- Create New Term Modal -->
+<div id="term-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Create a New Term</h3>
+        <form id="term-form">
+            <label for="jp-term">JP Term:</label>
+            <input type="text" id="jp-term" name="jpTerm" required>
+
+            <label for="eng-term">EN Term:</label>
+            <input type="text" id="eng-term" name="engTerm" required>
+
+            <label for="term-description">Description:</label>
+            <textarea id="term-description" name="termDescription" required></textarea>
+
+            <label for="version-created-term">Version Created:</label>
+            <input type="text" id="version-created-term" name="versionCreated" required placeholder="e.g., 1.0.0">
+
+            <label for="version-now-term">Current Version:</label>
+            <input type="text" id="version-now-term" name="versionNow" required placeholder="e.g., 1.2.3">
+
+            <label for="version-abandoned-term">Version Abandoned (if any):</label>
+            <input type="text" id="version-abandoned-term" name="versionAbandoned" placeholder="e.g., 1.1.0">
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
 
         <footer class="footer">
             <p>Footer</p>

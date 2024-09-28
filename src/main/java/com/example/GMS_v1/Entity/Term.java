@@ -1,6 +1,7 @@
 package com.example.GMS_v1.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -29,7 +30,7 @@ public class Term {
 
     @Column(name = "version_abandoned")
     private Long versionAbandoned;
-
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id", nullable = false)
     private GList list;

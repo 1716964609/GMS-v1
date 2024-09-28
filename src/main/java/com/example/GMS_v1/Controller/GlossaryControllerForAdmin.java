@@ -1,9 +1,7 @@
 package com.example.GMS_v1.Controller;
 
 
-import com.example.GMS_v1.DTO.IdRequest;
-import com.example.GMS_v1.DTO.MatchResultDTO;
-import com.example.GMS_v1.DTO.SearchRequest;
+import com.example.GMS_v1.DTO.*;
 import com.example.GMS_v1.Entity.GList;
 import com.example.GMS_v1.Entity.Term;
 import com.example.GMS_v1.Service.GlossaryService;
@@ -47,16 +45,22 @@ public class GlossaryControllerForAdmin {
         return ResponseEntity.ok(result);
     }
 
+//    // API 4: Fetch terms in a specific list and display them on the terms table
+//    @PostMapping("/terms-in-list")
+//    public ResponseEntity<List<Term>> getTermsInList(@RequestBody IdRequest request) {
+//        return ResponseEntity.ok(glossaryService.getTermsInList(request.getListId()));
+//    }
+
     // API 4: Fetch terms in a specific list and display them on the terms table
     @PostMapping("/terms-in-list")
-    public ResponseEntity<List<Term>> getTermsInList(@RequestBody IdRequest request) {
-        return ResponseEntity.ok(glossaryService.getTermsInList(request.getListId()));
+    public ResponseEntity<List<Term>> getTermsInList(@RequestBody ListId listId) {
+        return ResponseEntity.ok(glossaryService.getTermsInList(listId.getListId()));
     }
 
     // API 5: when a term name is clicked, fetch the term content by id and display it on the glossary term details content div
     @PostMapping("/termContent")
-    public ResponseEntity<Term> getTermContent(@RequestBody IdRequest request) {
-        return ResponseEntity.ok(glossaryService.getTermContent(request.getTermId()));
+    public ResponseEntity<Term> getTermContent(@RequestBody TermId termId) {
+        return ResponseEntity.ok(glossaryService.getTermContent(termId.getTermId()));
     }
 
     // Admin only CRUD operations: button click triggers a pop window that modifies the content of a list, post the content on click the submit button on the pop window.(specific term need to be selected when the functionality is update. None needs to be selected when create.)
