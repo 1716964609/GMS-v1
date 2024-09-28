@@ -112,10 +112,19 @@
 
         // Select list
         async function selectList(item) {
+
+
             // Populate related text areas with data from the clicked row
             document.querySelector('.glossary-list-details-content textarea:nth-child(2)').value = item.listName; // List Name
             document.querySelector('.glossary-list-details-content textarea:nth-child(4)').value = item.versionNow; // Version Now
             document.querySelector('.glossary-list-details-content textarea:nth-child(6)').value = item.description; // Description
+
+            // Populate term details
+            document.querySelector('.glossary-term-details-content textarea:nth-child(2)').value = ""; // JP Term Name
+            document.querySelector('.glossary-term-details-content textarea:nth-child(4)').value = ""; // EN Term Name
+            document.querySelector('.glossary-term-details-content textarea:nth-child(6)').value = ""; // Term Version
+            document.querySelector('.glossary-term-details-content textarea:nth-child(8)').value = ""; // Term Content
+            document.querySelector('.glossary-term-details-content textarea:nth-child(10)').value = ""; // Term Content
 
             //add fetch terms and populate
             const terms = await apiCall('/terms-in-list', 'POST', { listId: item.listId });
