@@ -45,12 +45,6 @@ public class GlossaryControllerForAdmin {
         return ResponseEntity.ok(result);
     }
 
-//    // API 4: Fetch terms in a specific list and display them on the terms table
-//    @PostMapping("/terms-in-list")
-//    public ResponseEntity<List<Term>> getTermsInList(@RequestBody IdRequest request) {
-//        return ResponseEntity.ok(glossaryService.getTermsInList(request.getListId()));
-//    }
-
     // API 4: Fetch terms in a specific list and display them on the terms table
     @PostMapping("/terms-in-list")
     public ResponseEntity<List<Term>> getTermsInList(@RequestBody ListId listId) {

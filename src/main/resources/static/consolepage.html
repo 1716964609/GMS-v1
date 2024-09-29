@@ -53,9 +53,9 @@
             <!-- Glossary Lists Section: Right Column -->
             <section class="glossary-list-details-section">
                 <div class="glossary-lists-header">
-                    <button>New</button>
-                    <button>Update</button>
-                    <button>Delete</button>
+                    <button id="create-list-btn">New</button>
+                    <button id="update-list-btn">Update</button>
+                    <button id="delete-list-btn">Delete</button>
                 </div>
                 <div class="glossary-list-details-content">
                     <p>List Name</p>
@@ -86,9 +86,10 @@
             <!-- Glossary Terms Section: Right Column -->
             <section class="glossary-term-details-section">
                 <div class="glossary-terms-header">
-                    <button>New</button>
-                    <button>Update</button>
-                    <button>Delete</button>
+                    <button id="create-term-btn">New</button>
+                    <button id="update-term-btn">Update</button>
+                    <button id="delete-term-btn">Delete</button>
+                    
                 </div>
                 <div class="glossary-term-details-content">
                     <p>JP Term Name</p>
@@ -108,9 +109,12 @@
         <!-- Create New List Modal -->
         <div id="list-modal" class="modal">
             <div class="modal-content">
-                <span class="close">&times;</span>
+                <span class="close" id="close-list">&times;</span>
                 <h3>Create a New List</h3>
                 <form id="list-form">
+                    <label for="list-id">List Id:</label>
+                    <input type="text" id="list-id" name="listId" required>
+                    
                     <label for="list-name">List Name:</label>
                     <input type="text" id="list-name" name="listName" required>
 
@@ -118,47 +122,56 @@
                     <textarea id="list-description" name="listDescription" required></textarea>
 
                     <label for="version-created-list">Version Created:</label>
-                    <input type="text" id="version-created-list" name="versionCreated" required placeholder="e.g., 1.0.0">
+                    <input type="text" id="version-created-list" name="versionCreated" required placeholder="e.g., 1">
 
                     <label for="version-now-list">Current Version:</label>
-                    <input type="text" id="version-now-list" name="versionNow" required placeholder="e.g., 1.2.3">
+                    <input type="text" id="version-now-list" name="versionNow" required placeholder="e.g., 1">
 
                     <label for="version-abandoned-list">Version Abandoned (if any):</label>
-                    <input type="text" id="version-abandoned-list" name="versionAbandoned" placeholder="e.g., 1.1.0">
+                    <input type="text" id="version-abandoned-list" name="versionAbandoned" placeholder="e.g., 1">
 
                     <button type="submit">Submit</button>
                 </form>
             </div>
         </div>
 
-<!-- Create New Term Modal -->
-<div id="term-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Create a New Term</h3>
-        <form id="term-form">
-            <label for="jp-term">JP Term:</label>
-            <input type="text" id="jp-term" name="jpTerm" required>
+        <!-- Create New Term Modal -->
+        <div id="term-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="close-term">&times;</span>
+                <h3>Create a New Term</h3>
+                <form id="term-form">
+                    <label for="term-id">Term Id:</label>
+                    <input type="text" id="term-id" name="termId" required>
 
-            <label for="eng-term">EN Term:</label>
-            <input type="text" id="eng-term" name="engTerm" required>
+                    <label for="jp-term">JP Term:</label>
+                    <input type="text" id="jp-term" name="jpTerm" required>
 
-            <label for="term-description">Description:</label>
-            <textarea id="term-description" name="termDescription" required></textarea>
+                    <label for="eng-term">EN Term:</label>
+                    <input type="text" id="eng-term" name="engTerm" required>
 
-            <label for="version-created-term">Version Created:</label>
-            <input type="text" id="version-created-term" name="versionCreated" required placeholder="e.g., 1.0.0">
+                    <label for="term-description">Description:</label>
+                    <textarea id="term-description" name="termDescription"></textarea>
 
-            <label for="version-now-term">Current Version:</label>
-            <input type="text" id="version-now-term" name="versionNow" required placeholder="e.g., 1.2.3">
+                    <label for="version-created-term">Version Created:</label>
+                    <input type="text" id="version-created-term" name="versionCreated" required placeholder="e.g., 1.0.0">
 
-            <label for="version-abandoned-term">Version Abandoned (if any):</label>
-            <input type="text" id="version-abandoned-term" name="versionAbandoned" placeholder="e.g., 1.1.0">
+                    <label for="version-now-term">Current Version:</label>
+                    <input type="text" id="version-now-term" name="versionNow" required placeholder="e.g., 1.2.3">
 
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-</div>
+                    <label for="version-abandoned-term">Version Abandoned (if any):</label>
+                    <input type="text" id="version-abandoned-term" name="versionAbandoned" placeholder="e.g., 1.1.0">
+
+                    <label for="list-for-term-name">List Name:</label>
+                    <input type="text" id="list-for-term-name" name="listForTermName" placeholder="e.g., 1.1.0">
+
+                    <label for="list-for-term">List Id:</label>
+                    <input type="text" id="list-for-term-id" name="listForTermId" placeholder="e.g., 1.1.0">
+
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
 
 
         <footer class="footer">
