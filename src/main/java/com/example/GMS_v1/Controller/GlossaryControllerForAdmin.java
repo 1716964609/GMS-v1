@@ -4,8 +4,10 @@ package com.example.GMS_v1.Controller;
 import com.example.GMS_v1.DTO.*;
 import com.example.GMS_v1.Entity.GList;
 import com.example.GMS_v1.Entity.Term;
+import com.example.GMS_v1.Repository.GListRepository;
 import com.example.GMS_v1.Service.GlossaryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/console/admin")
@@ -21,6 +24,9 @@ public class GlossaryControllerForAdmin {
 
     @Autowired
     private GlossaryService glossaryService;
+
+    @Autowired
+    private GListRepository gListRepository;
 
     // API 1: Search terms when the button is pressed and display the content on the search result table
     @PostMapping("/search")
@@ -63,10 +69,32 @@ public class GlossaryControllerForAdmin {
         return ResponseEntity.ok(glossaryService.createOrUpdateList(list));
     }
     // button click triggers a pop window that modifies the content of a term, post the content on click the submit button on the pop window. (specific term need to be selected when the functionality is update. None needs to be selected when create.)
+//    @PostMapping("/term")
+//    public ResponseEntity<Term> createOrUpdateTerm(@RequestBody Term term) {
+//        return ResponseEntity.ok(glossaryService.createOrUpdateTerm(term));
+//    }
+
     @PostMapping("/term")
     public ResponseEntity<Term> createOrUpdateTerm(@RequestBody Term term) {
-        return ResponseEntity.ok(glossaryService.createOrUpdateTerm(term));
+        System.out.println(term.getList().getListId());
+        if (term.getList() != null && term.getList().getListId() != null) {
+            Optional<GList> optionalList = gListRepository.findById(term.getList().getListId());
+            if (optionalList.isPresent()) {
+                term.setList(optionalList.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(null); // or return a specific error message
+            }
+        }
+
+        // Proceed with creating or updating the term
+        Term savedTerm = glossaryService.createOrUpdateTerm(term);
+        return ResponseEntity.ok(savedTerm);
     }
+
+
+
+
     // button click triggers a pop window that confirms whether to delete the selected list, execute the API on confirming
     @DeleteMapping("/list")
     public ResponseEntity<Void> deleteList(@RequestBody IdRequest request) {

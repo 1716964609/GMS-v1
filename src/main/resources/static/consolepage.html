@@ -59,11 +59,11 @@
                 </div>
                 <div class="glossary-list-details-content">
                     <p>List Name</p>
-                    <textarea placeholder="Text area for list name"></textarea>
+                    <textarea placeholder="Text area for list name" disabled></textarea>
                     <p>Version</p>
-                    <textarea placeholder="Text area for version"></textarea>
+                    <textarea placeholder="Text area for version" disabled></textarea>
                     <p>Content</p>
-                    <textarea placeholder="Text area for content"></textarea>
+                    <textarea placeholder="Text area for content" disabled></textarea>
                 </div>
             </section>
 
@@ -93,15 +93,15 @@
                 </div>
                 <div class="glossary-term-details-content">
                     <p>JP Term Name</p>
-                    <textarea placeholder="Text area for JP term name"></textarea>
+                    <textarea placeholder="Text area for JP term name" disabled></textarea>
                     <p>EN Term Name</p>
-                    <textarea placeholder="Text area for EN term name"></textarea>
+                    <textarea placeholder="Text area for EN term name" disabled></textarea>
                     <p>Term Version</p>
-                    <textarea placeholder="Text area for term version"></textarea>
+                    <textarea placeholder="Text area for term version" disabled></textarea>
                     <p>Term Content</p>
-                    <textarea placeholder="Text area for term content"></textarea>
+                    <textarea placeholder="Text area for term content" disabled></textarea>
                     <p>List Belonging</p>
-                    <textarea placeholder="Text area for term List Belonging"></textarea>
+                    <textarea placeholder="Text area for term List Belonging" disabled></textarea>
                 </div>
             </section>
         </main>
@@ -113,22 +113,22 @@
                 <h3>Create a New List</h3>
                 <form id="list-form">
                     <label for="list-id">List Id:</label>
-                    <input type="text" id="list-id" name="listId" required>
+                    <input type="text" id="list-id" name="listId" disabled>
                     
                     <label for="list-name">List Name:</label>
                     <input type="text" id="list-name" name="listName" required>
 
                     <label for="list-description">Description:</label>
-                    <textarea id="list-description" name="listDescription" required></textarea>
+                    <textarea type="text" id="list-description" name="listDescription"></textarea>
 
                     <label for="version-created-list">Version Created:</label>
-                    <input type="text" id="version-created-list" name="versionCreated" required placeholder="e.g., 1">
+                    <input type="number" id="version-created-list" name="versionCreated" required placeholder="e.g., 1">
 
                     <label for="version-now-list">Current Version:</label>
-                    <input type="text" id="version-now-list" name="versionNow" required placeholder="e.g., 1">
+                    <input type="number" id="version-now-list" name="versionNow" required placeholder="e.g., 1">
 
                     <label for="version-abandoned-list">Version Abandoned (if any):</label>
-                    <input type="text" id="version-abandoned-list" name="versionAbandoned" placeholder="e.g., 1">
+                    <input type="number" id="version-abandoned-list" name="versionAbandoned" placeholder="e.g., 1">
 
                     <button type="submit">Submit</button>
                 </form>
@@ -142,7 +142,7 @@
                 <h3>Create a New Term</h3>
                 <form id="term-form">
                     <label for="term-id">Term Id:</label>
-                    <input type="text" id="term-id" name="termId" required>
+                    <input type="text" id="term-id" name="termId" disabled>
 
                     <label for="jp-term">JP Term:</label>
                     <input type="text" id="jp-term" name="jpTerm" required>
@@ -151,22 +151,22 @@
                     <input type="text" id="eng-term" name="engTerm" required>
 
                     <label for="term-description">Description:</label>
-                    <textarea id="term-description" name="termDescription"></textarea>
+                    <textarea type="text" id="term-description" name="termDescription"></textarea>
 
                     <label for="version-created-term">Version Created:</label>
-                    <input type="text" id="version-created-term" name="versionCreated" required placeholder="e.g., 1.0.0">
+                    <input type="number" id="version-created-term" name="versionCreated" required placeholder="e.g., 1.0.0">
 
                     <label for="version-now-term">Current Version:</label>
-                    <input type="text" id="version-now-term" name="versionNow" required placeholder="e.g., 1.2.3">
+                    <input type="number" id="version-now-term" name="versionNow" required placeholder="e.g., 1.2.3">
 
                     <label for="version-abandoned-term">Version Abandoned (if any):</label>
-                    <input type="text" id="version-abandoned-term" name="versionAbandoned" placeholder="e.g., 1.1.0">
+                    <input type="number" id="version-abandoned-term" name="versionAbandoned" placeholder="e.g., 1.1.0">
 
                     <label for="list-for-term-name">List Name:</label>
-                    <input type="text" id="list-for-term-name" name="listForTermName" placeholder="e.g., 1.1.0">
+                    <input type="text" id="list-for-term-name" name="listForTermName" placeholder="e.g., 1.1.0" disabled>
 
                     <label for="list-for-term">List Id:</label>
-                    <input type="text" id="list-for-term-id" name="listForTermId" placeholder="e.g., 1.1.0">
+                    <input type="number" id="list-for-term-id" name="listForTermId" placeholder="e.g., 1.1.0" disabled>
 
                     <button type="submit">Submit</button>
                 </form>

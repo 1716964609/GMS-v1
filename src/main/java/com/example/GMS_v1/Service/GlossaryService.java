@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GlossaryService {
@@ -63,16 +64,71 @@ public class GlossaryService {
         return termRepository.findById(termId).orElse(null);
     }
 
-    // CRUD operations for Admin
+//    // CRUD operations for Admin
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public GList createOrUpdateList(GList list) {
+//        return gListRepository.save(list);
+//    }
+
     @PreAuthorize("hasRole('ADMIN')")
     public GList createOrUpdateList(GList list) {
-        return gListRepository.save(list);
+        System.out.println("COU starts!");
+        if (list.getListId() == null) {
+            // Create a new list
+            System.out.println("Creating");
+            return gListRepository.save(list);
+        } else {
+            // Update an existing list
+            System.out.println("updating");
+            Optional<GList> existingListOptional = gListRepository.findById(list.getListId());
+            if (existingListOptional.isPresent()) {
+                GList existingList = existingListOptional.get();
+                // Update fields as necessary
+                existingList.setListName(list.getListName());
+                existingList.setDescription(list.getDescription());
+                existingList.setVersionCreated(list.getVersionCreated());
+                existingList.setVersionNow(list.getVersionNow());
+                existingList.setVersionAbandoned(list.getVersionAbandoned());
+                // Save updated list
+                return gListRepository.save(existingList);
+            }
+            // Do nothing if the list doesn't exist
+            return null; // or handle as needed
+        }
     }
+
+
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public Term createOrUpdateTerm(Term term) {
+//        return termRepository.save(term);
+//    }
 
     @PreAuthorize("hasRole('ADMIN')")
     public Term createOrUpdateTerm(Term term) {
-        return termRepository.save(term);
+        if (term.getTermId() == null) {
+            // Create a new term
+            return termRepository.save(term);
+        } else {
+            // Update an existing term
+            Optional<Term> existingTermOptional = termRepository.findById(term.getTermId());
+            if (existingTermOptional.isPresent()) {
+                Term existingTerm = existingTermOptional.get();
+                // Update fields as necessary
+                existingTerm.setJpTerm(term.getJpTerm());
+                existingTerm.setEngTerm(term.getEngTerm());
+                existingTerm.setDescription(term.getDescription());
+                existingTerm.setVersionCreated(term.getVersionCreated());
+                existingTerm.setVersionNow(term.getVersionNow());
+                existingTerm.setVersionAbandoned(term.getVersionAbandoned());
+                // Save updated term
+                return termRepository.save(existingTerm);
+            }
+            // Do nothing if the term doesn't exist
+            return null; // or return existingTermOptional.orElse(null);
+        }
     }
+
+
 
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteList(Long listId) {

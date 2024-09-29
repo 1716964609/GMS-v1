@@ -1,4 +1,4 @@
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
         // Global variables
         let currentListId = null;
         let currentTermId = null;
@@ -81,6 +81,8 @@
         async function loadLists() {
             const lists = await apiCall('/lists');
             const listTable = document.querySelector('.glossary-lists-content table tbody');
+            document.getElementById('list-for-term-id').value = lists[0].listId;
+            document.getElementById('list-for-term-name').value =lists[0].listName;
             populateTable(listTable, lists, selectList);
 
         }
@@ -184,7 +186,10 @@
             document.getElementById('version-created-term').value = ""; // Clear Version Created
             document.getElementById('version-now-term').value = ""; // Clear Current Version
             document.getElementById('version-abandoned-term').value = ""; // Clear Version Abandoned
-            document.getElementById('list-id').innerHTML = '<option value="">Select a list</option>';
+
+            document.getElementById('list-for-term-id').value = item.listId;
+            document.getElementById('list-for-term-name').value =item.listName;
+
             document.getElementById('update-term-btn').disabled = true;
             document.getElementById('delete-term-btn').disabled = true;
 
@@ -235,22 +240,6 @@
 
         }
 
-        // // Function to populate the select element with list IDs from the glossary table
-        // function populateListSelect() {
-        //     const listSelect = document.getElementById('list-for-term-id');
-        //     const listRows = document.querySelectorAll('.glossary-lists-section tbody tr');
-
-        //     listRows.forEach(row => {
-        //         const listId = row.dataset.listId;
-        //         const listName = row.dataset.listName;
-        //         const option = document.createElement('option');
-        //         option.value = listId; // Set the option value to listId
-        //         option.textContent = listName; // Set the display text to listName
-
-        //         listSelect.appendChild(option); // Append the option to the select element
-        //     });
-        // }
-
         // Function to show the modal
         function showModal(modalId) {
             document.getElementById(modalId).style.display = 'block'; // Show the modal
@@ -261,13 +250,6 @@
             document.getElementById(modalId).style.display = 'none'; // Hide the modal
         }
 
-        // // Close the modal if the user clicks anywhere outside of it
-        // window.onclick = function(event) {
-        //     const modal = document.getElementById('list-modal');
-        //     if (event.target === modal) {
-        //         closeModal();
-        //     }
-        // }
         // Close the modal if the user clicks anywhere outside of it
         window.onclick = function(event) {
             const listModal = document.getElementById('list-modal');
@@ -300,124 +282,55 @@
             document.getElementById('version-created-term').value = ""; // Clear Version Created
             document.getElementById('version-now-term').value = ""; // Clear Current Version
             document.getElementById('version-abandoned-term').value = ""; // Clear Version Abandoned
-            document.getElementById('list-id').innerHTML = '<option value="">Select a list</option>';
             document.getElementById('update-term-btn').disabled = true;
             document.getElementById('delete-term-btn').disabled = true;
         }
 
 
-        // // Function to check the list name input
-        // function checkListName() {
-        //     const listName = document.getElementById('list-name').value;
-        //     document.getElementById('update-list-btn').disabled = listName === "";
-        // }
+        // Attach event listener for the submit button of the list form
+        document.getElementById('list-form').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent default form submission
 
-        // // Function to check the JP term input
-        // function checkJPTerm() {
-        //     const jpTerm = document.getElementById('jp-term').value;
-        //     document.getElementById('update-term-btn').disabled = jpTerm === "";
-        // }
+            const listData = {
+                // The listId field is disabled, so use null if it's empty
+                listId: document.getElementById('list-id').value ? parseInt(document.getElementById('list-id').value) : null,
+                listName: document.getElementById('list-name').value,
+                description: document.getElementById('list-description').value,
+                versionCreated: parseInt(document.getElementById('version-created-list').value),
+                versionNow: parseInt(document.getElementById('version-now-list').value),
+                versionAbandoned: document.getElementById('version-abandoned-list').value ? parseInt(document.getElementById('version-abandoned-list').value) : null,
+            };
 
+            await apiCall('/list', 'POST', listData); // Make API call
+            closeModal('list-modal'); // Close the modal after successful submission
+            loadLists(); // Reload the lists to reflect changes
+        });
 
-        // // Initialize the buttons as disabled
-        // document.getElementById('update-list-btn').disabled = true;
-        // document.getElementById('update-term-btn').disabled = true;
-        // document.getElementById('delete-list-btn').disabled = true;
-        // document.getElementById('delete-term-btn').disabled = true;
-        
-        // // Attach event listeners to the input fields
-        // document.getElementById('list-name').addEventListener('input', checkListName);
-        // document.getElementById('jp-term').addEventListener('input', checkJPTerm);
+        // Attach event listener for the submit button of the term form
+        document.getElementById('term-form').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent default form submission
+
+            const termData = {
+                jpTerm: document.getElementById('jp-term').value,
+                engTerm: document.getElementById('eng-term').value,
+                description: document.getElementById('term-description').value,
+                versionCreated: parseInt(document.getElementById('version-created-term').value),
+                versionNow: parseInt(document.getElementById('version-now-term').value),
+                versionAbandoned: document.getElementById('version-abandoned-term').value ? parseInt(document.getElementById('version-abandoned-term').value) : null,
+                list: {
+                    listId: parseInt(document.getElementById('list-id').value),
+                    listName: document.getElementById('list-name').value,
+                    description: document.getElementById('list-description').value,
+                    versionCreated: parseInt(document.getElementById('version-created-list').value),
+                    versionNow: parseInt(document.getElementById('version-now-list').value),
+                    versionAbandoned: document.getElementById('version-abandoned-list').value ? parseInt(document.getElementById('version-abandoned-list').value) : null,
+                },
+            };
+
+            await apiCall('/term', 'POST', termData); // Make API call
+            closeModal('term-modal'); // Close the modal after successful submission
+            selectTerm(termData);
+        });
 
 
     });
-
-     // // List CRUD operations
-        // document.querySelector('.glossary-lists-header button:nth-child(1)').addEventListener('click', createList);
-        // document.querySelector('.glossary-lists-header button:nth-child(2)').addEventListener('click', updateList);
-        // document.querySelector('.glossary-lists-header button:nth-child(3)').addEventListener('click', deleteList);
-
-        // async function createList() {
-        //     const list = {
-        //         name: document.querySelector('.glossary-list-details-content textarea:nth-child(2)').value,
-        //         version: document.querySelector('.glossary-list-details-content textarea:nth-child(4)').value,
-        //         content: document.querySelector('.glossary-list-details-content textarea:nth-child(6)').value
-        //     };
-        //     await apiCall('/list', 'POST', list);
-        //     loadLists();
-        // }
-
-        // async function updateList() {
-        //     if (!currentListId) {
-        //         alert('Please select a list to update');
-        //         return;
-        //     }
-        //     const list = {
-        //         id: currentListId,
-        //         name: document.querySelector('.glossary-list-details-content textarea:nth-child(2)').value,
-        //         version: document.querySelector('.glossary-list-details-content textarea:nth-child(4)').value,
-        //         content: document.querySelector('.glossary-list-details-content textarea:nth-child(6)').value
-        //     };
-        //     await apiCall('/list', 'POST', list);
-        //     loadLists();
-        // }
-
-        // async function deleteList() {
-        //     if (!currentListId) {
-        //         alert('Please select a list to delete');
-        //         return;
-        //     }
-        //     if (confirm('Are you sure you want to delete this list?')) {
-        //         await apiCall('/list', 'DELETE', { listId: currentListId });
-        //         loadLists();
-        //     }
-        // }
-
-        // // Term CRUD operations
-        // document.querySelector('.glossary-terms-header button:nth-child(1)').addEventListener('click', createTerm);
-        // document.querySelector('.glossary-terms-header button:nth-child(2)').addEventListener('click', updateTerm);
-        // document.querySelector('.glossary-terms-header button:nth-child(3)').addEventListener('click', deleteTerm);
-
-        // async function createTerm() {
-        //     if (!currentListId) {
-        //         alert('Please select a list to add a term to');
-        //         return;
-        //     }
-        //     const term = {
-        //         listId: currentListId,
-        //         jpName: document.querySelector('.glossary-term-details-content textarea:nth-child(2)').value,
-        //         enName: document.querySelector('.glossary-term-details-content textarea:nth-child(4)').value,
-        //         version: document.querySelector('.glossary-term-details-content textarea:nth-child(6)').value,
-        //         content: document.querySelector('.glossary-term-details-content textarea:nth-child(8)').value
-        //     };
-        //     await apiCall('/term', 'POST', term);
-        //     selectList({ id: currentListId });
-        // }
-
-        // async function updateTerm() {
-        //     if (!currentTermId) {
-        //         alert('Please select a term to update');
-        //         return;
-        //     }
-        //     const term = {
-        //         id: currentTermId,
-        //         listId: currentListId,
-        //         jpName: document.querySelector('.glossary-term-details-content textarea:nth-child(2)').value,
-        //         enName: document.querySelector('.glossary-term-details-content textarea:nth-child(4)').value,
-        //         version: document.querySelector('.glossary-term-details-content textarea:nth-child(6)').value,
-        //         content: document.querySelector('.glossary-term-details-content textarea:nth-child(8)').value
-        //     };
-        //     await apiCall('/term', 'POST', term);
-        //     selectList({ id: currentListId });
-        // }
-
-        // async function deleteTerm() {
-        //     if (!currentTermId) {
-        //         alert('Please select a term to delete');
-        //         return;
-        //     }
-        //     if (confirm('Are you sure you want to delete this term?')) {
-        //         await apiCall('/term', 'DELETE', { termId: currentTermId });
-        //         selectList({ id: currentListId });
-        //     }
-        // }
