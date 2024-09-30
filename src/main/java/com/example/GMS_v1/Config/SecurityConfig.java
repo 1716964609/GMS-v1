@@ -35,18 +35,43 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/","/login","/register","/UserRelated/**").permitAll() // Public URLs
+                        .requestMatchers("/","/login","/register","/UserRelated/**","/csrf-token").permitAll() // Public URLs
                         .anyRequest().authenticated() // All other URLs require authentication
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // Custom login page
+                        .loginPage("/UserRelated/login.html") // Custom login page
+                        .loginProcessingUrl("/login") // Handle login processing at this URL
                         .successHandler(customAuthenticationSuccessHandler()) // Custom success handler
+                        .permitAll() // Allow all users to see the login page
                 );
         return http.build();
     }
-//    @Bean
+
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            System.out.println("Getting authorities");
+            String role = authentication.getAuthorities().iterator().next().getAuthority();
+            System.out.println("autho done");
+            if (role.equals("ROLE_ADMIN")) {
+                response.sendRedirect("/console/admin");
+            } else if (role.equals("ROLE_USER")) {
+                response.sendRedirect("/console/user");
+            } else {
+                response.sendRedirect("/login?error"); // Fallback in case of no matching role
+            }
+        };
+    }
+
+
+    //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 //        http
 //                .authorizeHttpRequests(authorize -> authorize
@@ -76,26 +101,6 @@ public class SecurityConfig {
 //    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 //        return authenticationConfiguration.getAuthenticationManager();
 //    }
-
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-        return (request, response, authentication) -> {
-            System.out.println("Getting authorities");
-            String role = authentication.getAuthorities().iterator().next().getAuthority();
-            System.out.println("autho done");
-            if (role.equals("ROLE_ADMIN")) {
-                response.sendRedirect("/console/admin");
-            } else if (role.equals("ROLE_USER")) {
-                response.sendRedirect("/console/user");
-            } else {
-                response.sendRedirect("/login?error"); // Fallback in case of no matching role
-            }
-        };
-    }
 
 //    public AuthenticationSuccessHandler customAuthenticationSuccessHandler(){
 //        return new AuthenticationSuccessHandler() {

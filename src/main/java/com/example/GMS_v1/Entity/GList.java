@@ -89,4 +89,17 @@ public class GList {
     public void setListId(Long listId) {
         this.listId = listId;
     }
+
+    @Override
+    public String toString() {
+        return "GList{" +
+                "listId=" + listId +
+                ", listName='" + listName + '\'' +
+                ", description='" + description + '\'' +
+                ", versionCreated=" + versionCreated +
+                ", versionNow=" + versionNow +
+                ", versionAbandoned=" + versionAbandoned +
+
+                '}';
+    }
 }

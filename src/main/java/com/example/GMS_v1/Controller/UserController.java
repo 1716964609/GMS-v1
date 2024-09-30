@@ -25,10 +25,16 @@ public class UserController {
         return "redirect:/UserRelated/landingpage.html";
     }
 
-    @GetMapping("/login")
-    public String loginPage(){
-        return "redirect:/UserRelated/login.html";
+//    @PostMapping("/login")
+//    public String loginPage(){
+//        return "redirect:/UserRelated/login.html";
+//    }
+
+    @PostMapping("/login")
+    public void handleLogin() {
+        // This can be left empty; Spring Security will handle login automatically
     }
+
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/console/user")

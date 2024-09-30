@@ -48,6 +48,7 @@ public class GlossaryControllerForAdmin {
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);
         result.put("term", term);
+        System.out.println(term.toString());
         return ResponseEntity.ok(result);
     }
 
@@ -75,36 +76,34 @@ public class GlossaryControllerForAdmin {
 //    }
 
     @PostMapping("/term")
-    public ResponseEntity<Term> createOrUpdateTerm(@RequestBody Term term) {
-        System.out.println(term.getList().getListId());
-        if (term.getList() != null && term.getList().getListId() != null) {
-            Optional<GList> optionalList = gListRepository.findById(term.getList().getListId());
-            if (optionalList.isPresent()) {
-                term.setList(optionalList.get());
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(null); // or return a specific error message
-            }
-        }
-
+    public ResponseEntity<Term> createOrUpdateTerm(@RequestBody CrudTermDTO crudTermDTO) {
+        GList list = glossaryService.getListById(crudTermDTO.getListId());
+        Term term = new Term();
+        term.setTermId(crudTermDTO.getTermId());
+        term.setJpTerm(crudTermDTO.getJpTerm());
+        term.setEngTerm(crudTermDTO.getEngTerm());
+        term.setDescription(crudTermDTO.getDescription());
+        term.setVersionCreated(crudTermDTO.getVersionCreated());
+        term.setVersionNow(crudTermDTO.getVersionNow());
+        term.setVersionAbandoned(crudTermDTO.getVersionAbandoned());
+        term.setList(list); // Set the GList
         // Proceed with creating or updating the term
         Term savedTerm = glossaryService.createOrUpdateTerm(term);
         return ResponseEntity.ok(savedTerm);
     }
 
-
-
-
     // button click triggers a pop window that confirms whether to delete the selected list, execute the API on confirming
     @DeleteMapping("/list")
-    public ResponseEntity<Void> deleteList(@RequestBody IdRequest request) {
-        glossaryService.deleteList(request.getListId());
+    public ResponseEntity<Void> deleteList(@RequestBody GList gList) {
+        System.out.println(gList.toString());
+        glossaryService.deleteList(gList.getListId());
         return ResponseEntity.noContent().build();
     }
     // button click triggers a pop window that confirms whether to delete the selected term, execute the API on confirming
     @DeleteMapping("/term")
-    public ResponseEntity<Void> deleteTerm(@RequestBody IdRequest request) {
-        glossaryService.deleteTerm(request.getTermId());
+    public ResponseEntity<Void> deleteTerm(@RequestBody CrudTermDTO crudTermDTO) {
+        System.out.println(crudTermDTO.toString());
+        glossaryService.deleteTerm(crudTermDTO.getTermId());
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,181 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Translation Glossary Management System</title>
+    <title>用語集システム</title>
     <link rel="stylesheet" href="consolepage.css">
     <script src="consolepage.js" defer></script>
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>Translation Glossary Management System</h1>
+            <h1>用語集の閲覧および管理システム　フリーランス翻訳者向け</h1>
         </header>
 
         <main class="main-content">
-            <!-- Search section -->
+            <!-- 検索セクション -->
             <section class="search-section">
                 <form class="search-form">
-                    <input type="text" placeholder="Search form" id="search-input">
-                    <button type="submit">Search</button>
+                    <input type="text" placeholder="検索フォーム" id="search-input">
+                    <button type="submit">検索</button>
                 </form>
                 <div class="search-results">
                     <table>
                         <thead>
                             <tr>
-                                <th>Search Results</th>
+                                <th>検索結果</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Search results go here -->
+                            <!-- 検索結果がここに表示されます -->
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- Glossary Lists Section: Left Column -->
+            <!-- 用語集リストセクション：左カラム -->
             <section class="glossary-lists-section">
                 <div class="glossary-lists-content">
                     <table>
                         <thead>
                             <tr>
-                                <th>List Names</th>
+                                <th>リスト名</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- List names go here -->
+                            <!-- リスト名がここに表示されます -->
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- Glossary Lists Section: Right Column -->
+            <!-- 用語集リストセクション：右カラム -->
             <section class="glossary-list-details-section">
                 <div class="glossary-lists-header">
-                    <button id="create-list-btn">New</button>
-                    <button id="update-list-btn">Update</button>
-                    <button id="delete-list-btn">Delete</button>
+                    <button id="create-list-btn">新規作成</button>
+                    <button id="update-list-btn">更新</button>
+                    <button id="delete-list-btn">削除</button>
                 </div>
                 <div class="glossary-list-details-content">
-                    <p>List Name</p>
-                    <textarea placeholder="Text area for list name" disabled></textarea>
-                    <p>Version</p>
-                    <textarea placeholder="Text area for version" disabled></textarea>
-                    <p>Content</p>
-                    <textarea placeholder="Text area for content" disabled></textarea>
+                    <p>リスト</p>
+                    <textarea placeholder="リスト名" disabled></textarea>
+                    <p>バージョン</p>
+                    <textarea placeholder="リストの現在のバージョン" disabled></textarea>
+                    <p>説明</p>
+                    <textarea placeholder="リストに関する説明" disabled></textarea>
                 </div>
             </section>
 
-            <!-- Glossary Terms Section: Left Column -->
+            <!-- 用語セクション：左カラム -->
             <section class="glossary-terms-section">
                 <div class="glossary-terms-content">
                     <table>
                         <thead>
                             <tr>
-                                <th>Terms</th>
+                                <th>用語</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Glossary terms go here -->
+                            <!-- 用語がここに表示されます -->
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- Glossary Terms Section: Right Column -->
+            <!-- 用語セクション：右カラム -->
             <section class="glossary-term-details-section">
                 <div class="glossary-terms-header">
-                    <button id="create-term-btn">New</button>
-                    <button id="update-term-btn">Update</button>
-                    <button id="delete-term-btn">Delete</button>
-                    
+                    <button id="create-term-btn">新規作成</button>
+                    <button id="update-term-btn">更新</button>
+                    <button id="delete-term-btn">削除</button>
                 </div>
                 <div class="glossary-term-details-content">
-                    <p>JP Term Name</p>
-                    <textarea placeholder="Text area for JP term name" disabled></textarea>
-                    <p>EN Term Name</p>
-                    <textarea placeholder="Text area for EN term name" disabled></textarea>
-                    <p>Term Version</p>
-                    <textarea placeholder="Text area for term version" disabled></textarea>
-                    <p>Term Content</p>
-                    <textarea placeholder="Text area for term content" disabled></textarea>
-                    <p>List Belonging</p>
-                    <textarea placeholder="Text area for term List Belonging" disabled></textarea>
+                    <p>日本語</p>
+                    <textarea placeholder="日本語の用語名" disabled></textarea>
+                    <p>英語</p>
+                    <textarea placeholder="英語の用語名" disabled></textarea>
+                    <p>用語バージョン</p>
+                    <textarea placeholder="用語の現在のバージョン" disabled></textarea>
+                    <p>説明</p>
+                    <textarea placeholder="用語に関する説明" disabled></textarea>
+                    <p>所属リスト</p>
+                    <textarea placeholder="用語が所属しているリスト" disabled></textarea>
                 </div>
             </section>
         </main>
 
-        <!-- Create New List Modal -->
+        <!-- 新規リスト作成モーダル -->
         <div id="list-modal" class="modal">
             <div class="modal-content">
                 <span class="close" id="close-list">&times;</span>
-                <h3>Create a New List</h3>
+                <h3>リストを編集</h3>
                 <form id="list-form">
-                    <label for="list-id">List Id:</label>
+                    <label for="list-id">リストID</label>
                     <input type="text" id="list-id" name="listId" disabled>
                     
-                    <label for="list-name">List Name:</label>
+                    <label for="list-name">リスト名</label>
                     <input type="text" id="list-name" name="listName" required>
 
-                    <label for="list-description">Description:</label>
+                    <label for="list-description">説明</label>
                     <textarea type="text" id="list-description" name="listDescription"></textarea>
 
-                    <label for="version-created-list">Version Created:</label>
-                    <input type="number" id="version-created-list" name="versionCreated" required placeholder="e.g., 1">
+                    <label for="version-created-list">初バージョン</label>
+                    <input type="number" id="version-created-list" name="versionCreated" required placeholder="例: 1">
 
-                    <label for="version-now-list">Current Version:</label>
-                    <input type="number" id="version-now-list" name="versionNow" required placeholder="e.g., 1">
+                    <label for="version-now-list">現在のバージョン</label>
+                    <input type="number" id="version-now-list" name="versionNow" required placeholder="例: 1">
 
-                    <label for="version-abandoned-list">Version Abandoned (if any):</label>
-                    <input type="number" id="version-abandoned-list" name="versionAbandoned" placeholder="e.g., 1">
+                    <label for="version-abandoned-list">廃止バージョン（あれば）</label>
+                    <input type="number" id="version-abandoned-list" name="versionAbandoned" placeholder="例: 1">
 
-                    <button type="submit">Submit</button>
+                    <button type="submit">送信</button>
                 </form>
             </div>
         </div>
 
-        <!-- Create New Term Modal -->
+        <!-- 新規用語作成モーダル -->
         <div id="term-modal" class="modal">
             <div class="modal-content">
                 <span class="close" id="close-term">&times;</span>
-                <h3>Create a New Term</h3>
+                <h3>用語を編集</h3>
                 <form id="term-form">
-                    <label for="term-id">Term Id:</label>
+                    <label for="term-id">用語ID</label>
                     <input type="text" id="term-id" name="termId" disabled>
 
-                    <label for="jp-term">JP Term:</label>
+                    <label for="jp-term">日本語</label>
                     <input type="text" id="jp-term" name="jpTerm" required>
 
-                    <label for="eng-term">EN Term:</label>
+                    <label for="eng-term">英語</label>
                     <input type="text" id="eng-term" name="engTerm" required>
 
-                    <label for="term-description">Description:</label>
+                    <label for="term-description">説明</label>
                     <textarea type="text" id="term-description" name="termDescription"></textarea>
 
-                    <label for="version-created-term">Version Created:</label>
-                    <input type="number" id="version-created-term" name="versionCreated" required placeholder="e.g., 1.0.0">
+                    <label for="version-created-term">初バージョン</label>
+                    <input type="number" id="version-created-term" name="versionCreated" required placeholder="例: 1">
 
-                    <label for="version-now-term">Current Version:</label>
-                    <input type="number" id="version-now-term" name="versionNow" required placeholder="e.g., 1.2.3">
+                    <label for="version-now-term">現在のバージョン</label>
+                    <input type="number" id="version-now-term" name="versionNow" required placeholder="例: 1">
 
-                    <label for="version-abandoned-term">Version Abandoned (if any):</label>
-                    <input type="number" id="version-abandoned-term" name="versionAbandoned" placeholder="e.g., 1.1.0">
+                    <label for="version-abandoned-term">廃止バージョン（あれば）</label>
+                    <input type="number" id="version-abandoned-term" name="versionAbandoned" placeholder="例: 1">
 
-                    <label for="list-for-term-name">List Name:</label>
-                    <input type="text" id="list-for-term-name" name="listForTermName" placeholder="e.g., 1.1.0" disabled>
+                    <label for="list-for-term-name">所属リスト</label>
+                    <input type="text" id="list-for-term-name" name="listForTermName" placeholder="例: 1" disabled>
 
-                    <label for="list-for-term">List Id:</label>
-                    <input type="number" id="list-for-term-id" name="listForTermId" placeholder="e.g., 1.1.0" disabled>
+                    <label for="list-for-term-id">所属リストID</label>
+                    <input type="number" id="list-for-term-id" name="listForTermId" placeholder="例: 1" disabled>
 
-                    <button type="submit">Submit</button>
+                    <button type="submit">送信</button>
                 </form>
             </div>
         </div>
 
-
         <footer class="footer">
-            <p>Footer</p>
+            copyright ©
+            <a href="mailto:HXLJ9909@outlook.jp">チェンイー　リュウ　</a>
+            All Rights Reserved.
         </footer>
     </div>
 </body>

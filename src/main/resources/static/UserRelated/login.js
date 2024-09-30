@@ -42,36 +42,94 @@
 //        }
 //    });
 //});
-document.getElementById("login-form").addEventListener("submit", function(event) {
-    event.preventDefault(); // Prevent form submission
 
-    // Collect form data
-    const loginData = {
-        username: document.getElementById("email").value,  // Spring Security uses 'username' for email/username fields
-        password: document.getElementById("password").value
-    };
 
-    // Send the login request to the server
-    fetch("/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"  // Spring Security expects form-urlencoded format
-        },
-        body: `username=${encodeURIComponent(loginData.username)}&password=${encodeURIComponent(loginData.password)}`
+
+
+// document.getElementById("login-form").addEventListener("submit", function(event) {
+//     event.preventDefault(); // Prevent form submission
+
+    
+//     // Collect form data
+//     const loginData = {
+//         username: document.getElementById("email").value,  // Spring Security uses 'username' for email/username fields
+//         password: document.getElementById("password").value
+//     };
+
+//     // Send the login request to the server
+//     fetch("/login", {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/x-www-form-urlencoded"  // Spring Security expects form-urlencoded format
+//         },
+//         body: `username=${encodeURIComponent(loginData.username)}&password=${encodeURIComponent(loginData.password)}`
+//     })
+//     .then(response => {
+//         if (response.redirected) {
+//             // If the login is successful, the response will redirect the user based on their role
+//             window.location.href = response.url;
+//         } else {
+//             // Handle failed login (if server returns non-redirect response)
+//             return response.text().then(text => {
+//                 alert("Login failed: " + text);
+//             });
+//         }
+//     })
+//     .catch(error => {
+//         console.error("Error:", error);
+//         alert("An error occurred during login.");
+//     });
+// });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Fetch CSRF token from the backend
+    fetch("/csrf-token", {
+        method: "GET"
     })
-    .then(response => {
-        if (response.redirected) {
-            // If the login is successful, the response will redirect the user based on their role
-            window.location.href = response.url;
-        } else {
-            // Handle failed login (if server returns non-redirect response)
-            return response.text().then(text => {
-                alert("Login failed: " + text);
+    .then(response => response.json())
+    .then(data => {
+        // Store the CSRF token in a variable
+        const csrfToken = data.token;
+        const csrfHeader = data.headerName;
+
+        // Now listen for the form submission
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Collect form data
+            const loginData = {
+                username: document.getElementById("email").value,  // Spring Security uses 'username' for email/username fields
+                password: document.getElementById("password").value
+            };
+
+            // Send the login request with the CSRF token
+            fetch("/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    [csrfHeader]: csrfToken  // Include the CSRF token in the headers
+                },
+                body: `username=${encodeURIComponent(loginData.username)}&password=${encodeURIComponent(loginData.password)}`
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // If the login is successful, the response will redirect the user based on their role
+                    window.location.href = response.url;
+                } else {
+                    // Handle failed login
+                    return response.text().then(text => {
+                        alert("Login failed: " + text);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred during login.");
             });
-        }
+        });
     })
     .catch(error => {
-        console.error("Error:", error);
-        alert("An error occurred during login.");
+        console.error("Failed to fetch CSRF token:", error);
     });
 });

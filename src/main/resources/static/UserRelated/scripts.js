@@ -1,5 +1,5 @@
 function login() {
-    window.location.href = '/login';
+    window.location.href = '/UserRelated/login.html';
 }
 
 function register() {

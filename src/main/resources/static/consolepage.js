@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-        // Global variables
-        let currentListId = null;
-        let currentTermId = null;
 
         // API base URL
         const API_BASE_URL = '/console/admin';
@@ -33,30 +30,59 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('delete-term-btn').disabled = true;
 
         
-        // Search functionality
-        document.querySelector('.search-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const keyword = document.getElementById('search-input').value;
-            if(keyword.length > 0){
-                const results = await apiCall('/search', 'POST', { keyword });
-                const searchResultsTable = document.querySelector('.search-results table tbody');
-                populateSearchTable(searchResultsTable, results, selectSearchResult);
-            }
-        });
+
+        // Function to perform the search
+async function searchKeyword() {
+    const keyword = document.getElementById('search-input').value;
+    if (keyword.length > 0) {
+        const results = await apiCall('/search', 'POST', { keyword });
+        const searchResultsTable = document.querySelector('.search-results table tbody');
+        populateSearchTable(searchResultsTable, results, selectSearchResult);
+    } else{
+        const searchResultsTable = document.querySelector('.search-results table tbody');
+        tableBody.innerHTML = '';    
+    }
+}
+
+// Add event listener to the search form
+document.querySelector('.search-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    await searchKeyword();
+});
+
 
         // Utility function for making API calls
-        async function apiCall(endpoint, method = 'GET', body = null) {
-            const options = {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            if (body) options.body = JSON.stringify(body);
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-            if (!response.ok) throw new Error('API call failed');
-            return method === 'DELETE' ? null : response.json();
-        }
+async function apiCall(endpoint, method = 'GET', body = null) {
+    // Fetch CSRF token
+    const csrfResponse = await fetch("/csrf-token", {
+        method: "GET"
+    });
+    
+    if (!csrfResponse.ok) {
+        throw new Error('Failed to fetch CSRF token');
+    }
+    
+    const data = await csrfResponse.json();
+    const csrfToken = data.token;
+    const csrfHeader = data.headerName;
+
+    // Set up fetch options
+    const options = {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken // Include CSRF token in headers
+        },
+    };
+
+    if (body) options.body = JSON.stringify(body); // Attach body if provided
+
+    // Make API call
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+    if (!response.ok) throw new Error('API call failed');
+    return method === 'DELETE' ? null : response.json();
+}
+
 
         // Function to populate table
         function populateTable(tableBody, data, clickHandler) {
@@ -130,12 +156,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('jp-term').value = content.term.jpTerm; // Populate JP Term
             document.getElementById('eng-term').value = content.term.engTerm; // Populate EN Term
             document.getElementById('term-description').value = content.term.description; // Populate Description
-            document.getElementById('version-created-term').value = term.versionCreated; // Populate Version Created
+            document.getElementById('version-created-term').value = content.term.versionCreated; // Populate Version Created
             document.getElementById('version-now-term').value = content.term.versionNow; // Populate Current Version
             document.getElementById('version-abandoned-term').value = content.term.versionAbandoned; // Populate Version Abandoned
             // populateListSelect;
-            document.getElementById('list-for-term-id').value = list.listId;
-            document.getElementById('list-for-term-name').value =list.listName;
+            document.getElementById('list-for-term-id').value = content.list.listId;
+            document.getElementById('list-for-term-name').value = content.list.listName;
             document.getElementById('update-term-btn').disabled = false;
             document.getElementById('delete-term-btn').disabled = false;
 
@@ -232,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('version-created-term').value = term.versionCreated; // Populate Version Created
             document.getElementById('version-now-term').value = term.versionNow; // Populate Current Version
             document.getElementById('version-abandoned-term').value = term.versionAbandoned; // Populate Version Abandoned
-            // populateListSelect;
             document.getElementById('list-for-term-id').value = term.listId;
             document.getElementById('list-for-term-name').value =term.listName;
             document.getElementById('update-term-btn').disabled = false;
@@ -258,8 +283,20 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check if the clicked target is either modal
             if (event.target === listModal) {
                 closeModal('list-modal');
+                clearListForm;
+                document.querySelector('.glossary-list-details-content textarea:nth-child(2)').value = ""; // List Name
+                document.querySelector('.glossary-list-details-content textarea:nth-child(4)').value = ""; // Version Now
+                document.querySelector('.glossary-list-details-content textarea:nth-child(6)').value = ""; // Description
+
             } else if (event.target === termModal) {
                 closeModal('term-modal');
+                clearTermForm;
+                document.querySelector('.glossary-term-details-content textarea:nth-child(2)').value = ""; // JP Term Name
+                document.querySelector('.glossary-term-details-content textarea:nth-child(4)').value = ""; // EN Term Name
+                document.querySelector('.glossary-term-details-content textarea:nth-child(6)').value = ""; // Term Version
+                document.querySelector('.glossary-term-details-content textarea:nth-child(8)').value = ""; // Term Content
+                document.querySelector('.glossary-term-details-content textarea:nth-child(10)').value = ""; // Term Content
+
             }
         };
 
@@ -304,6 +341,19 @@ document.addEventListener('DOMContentLoaded', function() {
             await apiCall('/list', 'POST', listData); // Make API call
             closeModal('list-modal'); // Close the modal after successful submission
             loadLists(); // Reload the lists to reflect changes
+                        // Populate list details
+            document.querySelector('.glossary-list-details-content textarea:nth-child(2)').value = listData.listName; // List name
+            document.querySelector('.glossary-list-details-content textarea:nth-child(4)').value = listData.versionNow; // Version
+            document.querySelector('.glossary-list-details-content textarea:nth-child(6)').value = listData.description; // Content
+            document.getElementById('list-id').value = listData.listId;
+            document.getElementById('list-name').value = listData.listName;
+            document.getElementById('list-description').value = listData.description;
+            document.getElementById('version-created-list').value = listData.versionCreated;
+            document.getElementById('version-now-list').value = listData.versionNow;
+            document.getElementById('version-abandoned-list').value = listData.versionAbandoned;
+            document.getElementById('update-list-btn').disabled = false;
+            document.getElementById('delete-list-btn').disabled = false;
+            await searchKeyword();
         });
 
         // Attach event listener for the submit button of the term form
@@ -311,25 +361,177 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault(); // Prevent default form submission
 
             const termData = {
+                termId:parseInt(document.getElementById('term-id').value),
                 jpTerm: document.getElementById('jp-term').value,
                 engTerm: document.getElementById('eng-term').value,
                 description: document.getElementById('term-description').value,
                 versionCreated: parseInt(document.getElementById('version-created-term').value),
                 versionNow: parseInt(document.getElementById('version-now-term').value),
                 versionAbandoned: document.getElementById('version-abandoned-term').value ? parseInt(document.getElementById('version-abandoned-term').value) : null,
-                list: {
-                    listId: parseInt(document.getElementById('list-id').value),
-                    listName: document.getElementById('list-name').value,
-                    description: document.getElementById('list-description').value,
-                    versionCreated: parseInt(document.getElementById('version-created-list').value),
-                    versionNow: parseInt(document.getElementById('version-now-list').value),
-                    versionAbandoned: document.getElementById('version-abandoned-list').value ? parseInt(document.getElementById('version-abandoned-list').value) : null,
-                },
+                listId: parseInt(document.getElementById('list-for-term-id').value),
+                listName: document.getElementById('list-for-term-name').value,
+
             };
+            console.log(JSON.stringify(termData));
+
 
             await apiCall('/term', 'POST', termData); // Make API call
             closeModal('term-modal'); // Close the modal after successful submission
-            selectTerm(termData);
+            // selectTerm(termData);
+
+            const terms = await apiCall('/terms-in-list', 'POST', { listId: termData.listId });
+            const termsTable = document.querySelector('.glossary-terms-content table tbody');
+            termsTable.innerHTML = ''; // Clear previous terms
+            terms.forEach(term => {
+                term.listName = termData.listName;
+                term.listId = termData.listId;
+                const termRow = document.createElement('tr');
+                const termCell = document.createElement('td');
+                termCell.textContent = term.jpTerm; // Display JP Term Name
+                termRow.dataset.jpTerm = term.jpTerm;
+                termRow.dataset.termId = term.termId; // Store termId for later use
+                termRow.dataset.engTerm = term.engTerm; // Store other attributes if needed
+                termRow.dataset.versionNow = term.versionNow;
+                termRow.dataset.versionCreated = term.versionCreated;
+                termRow.dataset.versionAbandoned = term.versionAbandoned;
+                termRow.dataset.description = term.description;
+                termRow.addEventListener('click', () => selectTerm(term)); // Add click event to select term
+                termRow.appendChild(termCell);
+                termsTable.appendChild(termRow);
+            })
+                        // Populate term details
+            document.querySelector('.glossary-term-details-content textarea:nth-child(2)').value = termData.jpTerm; // JP Term Name
+            document.querySelector('.glossary-term-details-content textarea:nth-child(4)').value = termData.engTerm; // EN Term Name
+            document.querySelector('.glossary-term-details-content textarea:nth-child(6)').value = termData.versionNow; // Term Version
+            document.querySelector('.glossary-term-details-content textarea:nth-child(8)').value = termData.description; // Term Content
+            document.querySelector('.glossary-term-details-content textarea:nth-child(10)').value = termData.listName; // Term Content
+            document.getElementById('term-id').value = termData.termId; // Populate Term Id
+            document.getElementById('jp-term').value = termData.jpTerm; // Populate JP Term
+            document.getElementById('eng-term').value = termData.engTerm; // Populate EN Term
+            document.getElementById('term-description').value = termData.description; // Populate Description
+            document.getElementById('version-created-term').value = termData.versionCreated; // Populate Version Created
+            document.getElementById('version-now-term').value = termData.versionNow; // Populate Current Version
+            document.getElementById('version-abandoned-term').value = termData.versionAbandoned; // Populate Version Abandoned
+
+            document.getElementById('list-for-term-id').value = termData.listId;
+            document.getElementById('list-for-term-name').value =termData.listName;
+            document.getElementById('update-term-btn').disabled = false;
+            document.getElementById('delete-term-btn').disabled = false;
+            await searchKeyword();
+
+        });
+
+        // Function to delete a list
+        async function deleteList(listData) {
+            if (confirm(`${listData.listName}?　を削除しますか？`)) {
+                try {
+                    await apiCall('/list', 'DELETE', listData); // Use the apiCall function
+
+                    loadLists(); // Reload the lists to reflect changes
+                    document.querySelector('.glossary-list-details-content textarea:nth-child(2)').value = ""; // List Name
+                    document.querySelector('.glossary-list-details-content textarea:nth-child(4)').value = ""; // Version Now
+                    document.querySelector('.glossary-list-details-content textarea:nth-child(6)').value = ""; // Description
+                    document.getElementById('list-id').value = "";
+                    document.getElementById('list-name').value = "";
+                    document.getElementById('list-description').value = "";
+                    document.getElementById('version-created-list').value = "";
+                    document.getElementById('version-now-list').value = "";
+                    document.getElementById('version-abandoned-list').value = "";
+                    document.getElementById('update-list-btn').disabled = false;
+                    document.getElementById('delete-list-btn').disabled = false;
+
+                    // Clear previous terms in the table
+            const termsTable = document.querySelector('.glossary-terms-content table tbody');
+            termsTable.innerHTML = '';
+
+                    await searchKeyword();
+
+                    alert(`${listData.listName} has been deleted.`);
+                } catch (error) {
+                    alert('Failed to delete the list.');
+                    console.error(error);
+                }
+            }
+        }
+
+        // Function to delete a term
+        async function deleteTerm(termData) {
+            if (confirm(`${termData.jpTerm}?　を削除しますか？`)) {
+                try {
+                    await apiCall('/term', 'DELETE', termData); // Use the apiCall function
+
+                    const terms = await apiCall('/terms-in-list', 'POST', { listId: termData.listId });
+                    const termsTable = document.querySelector('.glossary-terms-content table tbody');
+                    termsTable.innerHTML = ''; // Clear previous terms
+                    terms.forEach(term => {
+                        term.listName = termData.listName;
+                        term.listId = termData.listId;
+                        const termRow = document.createElement('tr');
+                        const termCell = document.createElement('td');
+                        termCell.textContent = term.jpTerm; // Display JP Term Name
+                        termRow.dataset.jpTerm = term.jpTerm;
+                        termRow.dataset.termId = term.termId; // Store termId for later use
+                        termRow.dataset.engTerm = term.engTerm; // Store other attributes if needed
+                        termRow.dataset.versionNow = term.versionNow;
+                        termRow.dataset.versionCreated = term.versionCreated;
+                        termRow.dataset.versionAbandoned = term.versionAbandoned;
+                        termRow.dataset.description = term.description;
+                        termRow.addEventListener('click', () => selectTerm(term)); // Add click event to select term
+                        termRow.appendChild(termCell);
+                        termsTable.appendChild(termRow);
+                    })
+                    document.querySelector('.glossary-term-details-content textarea:nth-child(2)').value = ""; // JP Term Name
+                    document.querySelector('.glossary-term-details-content textarea:nth-child(4)').value = ""; // EN Term Name
+                    document.querySelector('.glossary-term-details-content textarea:nth-child(6)').value = ""; // Term Version
+                    document.querySelector('.glossary-term-details-content textarea:nth-child(8)').value = ""; // Term Content
+                    document.querySelector('.glossary-term-details-content textarea:nth-child(10)').value = ""; // Term Content
+                    document.getElementById('term-id').value = ""; // Clear Term Id
+                    document.getElementById('jp-term').value = ""; // Clear JP Term
+                    document.getElementById('eng-term').value = ""; // Clear EN Term
+                    document.getElementById('term-description').value = ""; // Clear Description
+                    document.getElementById('version-created-term').value = ""; // Clear Version Created
+                    document.getElementById('version-now-term').value = ""; // Clear Current Version
+                    document.getElementById('version-abandoned-term').value = ""; // Clear Version Abandoned
+                    document.getElementById('list-for-term-id').value = termData.listId;
+                    document.getElementById('list-for-term-name').value =termData.listName;
+                    document.getElementById('update-term-btn').disabled = true;
+                    document.getElementById('delete-term-btn').disabled = true;
+                    await searchKeyword();
+
+                    alert(`${termData.jpTerm} has been deleted.`);
+                } catch (error) {
+                    alert('Failed to delete the term.');
+                    console.error(error);
+                }
+            }
+        }
+
+        // Add event listeners to the buttons
+        document.getElementById('delete-list-btn').addEventListener('click', function() {
+            const listData = {
+                listId: parseInt(document.getElementById('list-id').value),
+                listName: document.getElementById('list-name').value,
+                description: document.getElementById('list-description').value,
+                versionCreated: parseInt(document.getElementById('version-created-list').value),
+                versionNow: parseInt(document.getElementById('version-now-list').value),
+                versionAbandoned: document.getElementById('version-abandoned-list').value ? parseInt(document.getElementById('version-abandoned-list').value) : null,
+            };
+            deleteList(listData);
+        });
+
+        document.getElementById('delete-term-btn').addEventListener('click', function() {
+            const termData = {
+                termId: parseInt(document.getElementById('term-id').value), // Assuming you have the term ID stored
+                jpTerm: document.getElementById('jp-term').value,
+                engTerm: document.getElementById('eng-term').value,
+                description: document.getElementById('term-description').value,
+                versionCreated: parseInt(document.getElementById('version-created-term').value),
+                versionNow: parseInt(document.getElementById('version-now-term').value),
+                versionAbandoned: document.getElementById('version-abandoned-term').value ? parseInt(document.getElementById('version-abandoned-term').value) : null,
+                listId: parseInt(document.getElementById('list-for-term-id').value),
+                listName: document.getElementById('list-for-term-name').value,
+            };
+            deleteTerm(termData);
         });
 
 

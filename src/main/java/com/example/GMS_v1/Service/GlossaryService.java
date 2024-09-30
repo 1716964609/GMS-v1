@@ -107,13 +107,16 @@ public class GlossaryService {
     public Term createOrUpdateTerm(Term term) {
         if (term.getTermId() == null) {
             // Create a new term
+            System.out.println("creating a new term");
             return termRepository.save(term);
         } else {
             // Update an existing term
             Optional<Term> existingTermOptional = termRepository.findById(term.getTermId());
+            System.out.println(existingTermOptional.toString());
             if (existingTermOptional.isPresent()) {
                 Term existingTerm = existingTermOptional.get();
                 // Update fields as necessary
+                existingTerm.setTermId(term.getTermId());
                 existingTerm.setJpTerm(term.getJpTerm());
                 existingTerm.setEngTerm(term.getEngTerm());
                 existingTerm.setDescription(term.getDescription());
