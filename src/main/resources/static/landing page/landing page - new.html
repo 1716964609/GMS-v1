@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻訳用語管理システム</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <img src="icon.jpg" alt="Iconic Image" class="iconic-image">
+                <h1>翻訳用語管理システム</h1>
+            </div>
+            <div class="header-right">
+                <button id="loginBtn">ログイン</button>
+                <button id="registerBtn">新規登録</button>
+            </div>
+        </header>
+
+        <!-- Login Form (Hidden initially) -->
+        <div id="loginForm" class="hidden">
+            <div class="form-content">
+                <button class="close-btn">&times;</button>
+                <h2>ログイン</h2>
+                <form>
+                    <label for="username">ユーザー名:</label>
+                    <input type="text" id="username" name="username">
+                    <label for="password">パスワード:</label>
+                    <input type="password" id="password" name="password">
+                    <button type="submit">ログイン</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Register Form (Hidden initially) -->
+        <div id="registerForm" class="hidden">
+            <div class="form-content">
+                <button class="close-btn">&times;</button>
+                <h2>新規登録</h2>
+                <form>
+                    <label for="usernameReg">ユーザー名:</label>
+                    <input type="text" id="usernameReg" name="usernameReg">
+                    <label for="passwordReg">パスワード:</label>
+                    <input type="password" id="passwordReg" name="passwordReg">
+                    <button type="submit">登録</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main>
+            <section class="left-section">
+                <h2>システムガイドライン</h2>
+                <p>このシステムは翻訳者向けに用語の検索と管理を簡単に行うために作成されました。</p>
+                <h3>使用方法</h3>
+                <p>ログインまたは新規登録後、用語を検索できます。システムの更新情報や著作権に関する注意事項を確認してください。</p>
+                <h3>著作権について</h3>
+                <p>本システムに含まれるすべての情報は、許可なく複製または配布することを禁じます。</p>
+            </section>
+            
+            <section class="right-section">
+                <h2>お知らせ</h2>
+                <p>最新のシステムアップデートはこちらで確認できます。</p>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2024 翻訳用語管理システム. すべての権利を保有しています。</p>
+        </footer>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

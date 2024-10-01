@@ -37,11 +37,11 @@ public class SecurityConfig {
         http
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/","/login","/register","/UserRelated/**","/csrf-token").permitAll() // Public URLs
+                        .requestMatchers("/","/csrf-token","/landing page/**").permitAll() // Public URLs
                         .anyRequest().authenticated() // All other URLs require authentication
                 )
                 .formLogin(form -> form
-                        .loginPage("/UserRelated/login.html") // Custom login page
+                        .loginPage("/landing page/landing page - new.html") // Custom login page
                         .loginProcessingUrl("/login") // Handle login processing at this URL
                         .successHandler(customAuthenticationSuccessHandler()) // Custom success handler
                         .permitAll() // Allow all users to see the login page
@@ -65,7 +65,7 @@ public class SecurityConfig {
             } else if (role.equals("ROLE_USER")) {
                 response.sendRedirect("/console/user");
             } else {
-                response.sendRedirect("/login?error"); // Fallback in case of no matching role
+                response.sendRedirect("/landing page/landing page - new.html?error"); // Fallback in case of no matching role
             }
         };
     }

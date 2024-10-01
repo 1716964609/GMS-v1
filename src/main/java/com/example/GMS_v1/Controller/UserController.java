@@ -20,9 +20,13 @@ public class UserController {
         this.userService = userService;
     }
 
+//    @GetMapping
+//    public String landingPage(){
+//        return "redirect:/UserRelated/landingpage.html";
+//    }
     @GetMapping
     public String landingPage(){
-        return "redirect:/UserRelated/landingpage.html";
+        return "redirect:/landing page/landing page - new.html";
     }
 
 //    @PostMapping("/login")
@@ -30,10 +34,10 @@ public class UserController {
 //        return "redirect:/UserRelated/login.html";
 //    }
 
-    @PostMapping("/login")
-    public void handleLogin() {
-        // This can be left empty; Spring Security will handle login automatically
-    }
+//    @PostMapping("/login")
+//    public void handleLogin() {
+//        // This can be left empty; Spring Security will handle login automatically
+//    }
 
 
     @PreAuthorize("hasRole('USER')")
@@ -48,10 +52,10 @@ public class UserController {
         return "redirect:/consolepage.html";  // This should be the name of your admin console HTML page (adminConsole.html)
     }
 
-    @GetMapping("/register")
-    public String registrationPage() {
-        return "redirect:/UserRelated/registration.html"; // Name of the HTML file without the .html extension
-    }
+//    @GetMapping("/register")
+//    public String registrationPage() {
+//        return "redirect:/UserRelated/registration.html"; // Name of the HTML file without the .html extension
+//    }
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
