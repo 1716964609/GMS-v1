@@ -26,7 +26,7 @@ public class UserController {
 //    }
     @GetMapping
     public String landingPage(){
-        return "redirect:/landing page/landing page - new.html";
+        return "redirect:/landingPage/landingPage.html";
     }
 
 //    @PostMapping("/login")
@@ -61,10 +61,10 @@ public class UserController {
     public ResponseEntity<String> registerUser(@Valid @RequestBody User user) {
         System.out.println("register starts");
         if (userService.userExists(user.getUsername())) {
-            return ResponseEntity.badRequest().body("Username is already taken");
+            return ResponseEntity.badRequest().body("ユーザー名（メール）すでに使用されています。");
         }
         userService.registerUser(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok("ユーザー登録が成功しました。");
     }
 
 //    @PostMapping("/login")

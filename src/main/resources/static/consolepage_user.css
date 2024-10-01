@@ -100,6 +100,15 @@ textarea {
     color: white;
 } */
 
+
+
+
+
+
+
+
+
+
 * {
     margin: 0;
     padding: 0;
@@ -119,7 +128,7 @@ body {
 
 .header {
     text-align: center;
-    background-color: #333;
+    background-color: #9b9bc7;
     color: white;
     padding: 10px;
 }
@@ -130,15 +139,18 @@ body {
     gap: 20px;
     flex: 1;
     padding: 20px;
+    height: 90%;
 }
 
 .search-section {
+    flex: 1;
     grid-column: span 1; /* Single column */
     background-color: white;
     border: 1px solid #ccc;
     display: flex;
     flex-direction: column;
     padding: 20px;
+    gap: 20px;
 }
 
 .search-form {
@@ -159,6 +171,7 @@ body {
 .search-results {
     flex: 1;
     overflow-y: auto;
+    max-height: 75vh;
 }
 
 table {
@@ -197,6 +210,8 @@ textarea {
 .glossary-lists-section, 
 .glossary-terms-section {
     grid-column: span 1; /* Left columns for lists and terms */
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 .glossary-list-details-section, 
@@ -218,6 +233,60 @@ textarea {
 .footer {
     text-align: center;
     padding: 10px;
-    background-color: #333;
+    background-color: #9b9bc7;
     color: white;
+    height: 5%;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 8px;
+
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #7b7bc0;
 }

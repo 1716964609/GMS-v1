@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.io.IOException;
@@ -37,13 +38,14 @@ public class SecurityConfig {
         http
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/","/csrf-token","/landing page/**").permitAll() // Public URLs
+                        .requestMatchers("/","/csrf-token","/landingPage/**","/register").permitAll() // Public URLs
                         .anyRequest().authenticated() // All other URLs require authentication
                 )
                 .formLogin(form -> form
-                        .loginPage("/landing page/landing page - new.html") // Custom login page
+                        .loginPage("/landingPage/landingPage.html") // Custom login page
                         .loginProcessingUrl("/login") // Handle login processing at this URL
-                        .successHandler(customAuthenticationSuccessHandler()) // Custom success handler
+                        .successHandler(customAuthenticationSuccessHandler())
+                        .failureHandler(customAuthenticationFailureHandler())// Custom success handler
                         .permitAll() // Allow all users to see the login page
                 );
         return http.build();
@@ -65,8 +67,19 @@ public class SecurityConfig {
             } else if (role.equals("ROLE_USER")) {
                 response.sendRedirect("/console/user");
             } else {
-                response.sendRedirect("/landing page/landing page - new.html?error"); // Fallback in case of no matching role
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 Forbidden
+                response.getWriter().write("Unauthorized access. No matching role found.");
+                response.getWriter().flush();
             }
+        };
+    }
+
+    @Bean
+    public AuthenticationFailureHandler customAuthenticationFailureHandler() {
+        return (request, response, exception) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+            response.getWriter().write("Login failed: Invalid username or password");
+            response.getWriter().flush();
         };
     }
 
