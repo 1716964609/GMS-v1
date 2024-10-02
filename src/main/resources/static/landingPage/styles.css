@@ -107,7 +107,8 @@ h2, h3 {
 
 p {
     color: #555;
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
 }
 
 /* Footer */

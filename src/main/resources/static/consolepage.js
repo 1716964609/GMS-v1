@@ -423,7 +423,7 @@ async function apiCall(endpoint, method = 'GET', body = null) {
 
         // Function to delete a list
         async function deleteList(listData) {
-            if (confirm(`${listData.listName}?　を削除しますか？`)) {
+            if (confirm(`${listData.listName}を削除しますか？`)) {
                 try {
                     await apiCall('/list', 'DELETE', listData); // Use the apiCall function
 
@@ -456,7 +456,7 @@ async function apiCall(endpoint, method = 'GET', body = null) {
 
         // Function to delete a term
         async function deleteTerm(termData) {
-            if (confirm(`${termData.jpTerm}?　を削除しますか？`)) {
+            if (confirm(`${termData.jpTerm}を削除しますか？`)) {
                 try {
                     await apiCall('/term', 'DELETE', termData); // Use the apiCall function
 
