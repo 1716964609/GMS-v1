@@ -64,22 +64,13 @@ public class GlossaryService {
         return termRepository.findById(termId).orElse(null);
     }
 
-//    // CRUD operations for Admin
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public GList createOrUpdateList(GList list) {
-//        return gListRepository.save(list);
-//    }
-
     @PreAuthorize("hasRole('ADMIN')")
     public GList createOrUpdateList(GList list) {
-        System.out.println("COU starts!");
         if (list.getListId() == null) {
             // Create a new list
-            System.out.println("Creating");
             return gListRepository.save(list);
         } else {
             // Update an existing list
-            System.out.println("updating");
             Optional<GList> existingListOptional = gListRepository.findById(list.getListId());
             if (existingListOptional.isPresent()) {
                 GList existingList = existingListOptional.get();
@@ -97,22 +88,14 @@ public class GlossaryService {
         }
     }
 
-
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public Term createOrUpdateTerm(Term term) {
-//        return termRepository.save(term);
-//    }
-
     @PreAuthorize("hasRole('ADMIN')")
     public Term createOrUpdateTerm(Term term) {
         if (term.getTermId() == null) {
             // Create a new term
-            System.out.println("creating a new term");
             return termRepository.save(term);
         } else {
             // Update an existing term
             Optional<Term> existingTermOptional = termRepository.findById(term.getTermId());
-            System.out.println(existingTermOptional.toString());
             if (existingTermOptional.isPresent()) {
                 Term existingTerm = existingTermOptional.get();
                 // Update fields as necessary
@@ -130,8 +113,6 @@ public class GlossaryService {
             return null; // or return existingTermOptional.orElse(null);
         }
     }
-
-
 
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteList(Long listId) {

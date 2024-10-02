@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TermRepository extends JpaRepository<Term, Long> {
-//    List<Term> findByJpTermContainingOrEngTermContaining(String jpTerm, String engTerm);
 
     // Partial match for search
     @Query("SELECT t FROM Term t WHERE t.jpTerm LIKE %:keyword% OR t.engTerm LIKE %:keyword%")

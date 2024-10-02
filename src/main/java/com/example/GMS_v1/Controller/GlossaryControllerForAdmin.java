@@ -47,7 +47,6 @@ public class GlossaryControllerForAdmin {
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);
         result.put("term", term);
-        System.out.println(term.toString());
         return ResponseEntity.ok(result);
     }
 
@@ -68,11 +67,6 @@ public class GlossaryControllerForAdmin {
     public ResponseEntity<GList> createOrUpdateList(@RequestBody GList list) {
         return ResponseEntity.ok(glossaryService.createOrUpdateList(list));
     }
-    // button click triggers a pop window that modifies the content of a term, post the content on click the submit button on the pop window. (specific term need to be selected when the functionality is update. None needs to be selected when create.)
-//    @PostMapping("/term")
-//    public ResponseEntity<Term> createOrUpdateTerm(@RequestBody Term term) {
-//        return ResponseEntity.ok(glossaryService.createOrUpdateTerm(term));
-//    }
 
     @PostMapping("/term")
     public ResponseEntity<Term> createOrUpdateTerm(@RequestBody CrudTermDTO crudTermDTO) {
@@ -86,7 +80,6 @@ public class GlossaryControllerForAdmin {
         term.setVersionNow(crudTermDTO.getVersionNow());
         term.setVersionAbandoned(crudTermDTO.getVersionAbandoned());
         term.setList(list); // Set the GList
-        // Proceed with creating or updating the term
         Term savedTerm = glossaryService.createOrUpdateTerm(term);
         return ResponseEntity.ok(savedTerm);
     }
@@ -101,7 +94,6 @@ public class GlossaryControllerForAdmin {
     // button click triggers a pop window that confirms whether to delete the selected term, execute the API on confirming
     @DeleteMapping("/term")
     public ResponseEntity<Void> deleteTerm(@RequestBody CrudTermDTO crudTermDTO) {
-        System.out.println(crudTermDTO.toString());
         glossaryService.deleteTerm(crudTermDTO.getTermId());
         return ResponseEntity.noContent().build();
     }

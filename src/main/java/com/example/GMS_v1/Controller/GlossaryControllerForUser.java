@@ -46,7 +46,6 @@ public class GlossaryControllerForUser {
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);
         result.put("term", term);
-        System.out.println(term.toString());
         return ResponseEntity.ok(result);
     }
 

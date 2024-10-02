@@ -99,7 +99,6 @@ public class GList {
                 ", versionCreated=" + versionCreated +
                 ", versionNow=" + versionNow +
                 ", versionAbandoned=" + versionAbandoned +
-
                 '}';
     }
 }
