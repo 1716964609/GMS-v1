@@ -14,47 +14,33 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
+
+
+    private final UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private  BCryptPasswordEncoder passwordEncoder;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
-        User user = userRepository.findByUsername(username);
-        if(user == null){
-            throw new UsernameNotFoundException("User not found");
-        }
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPasswordHash(),
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_"+user.getRole()))
-        );
+    @Autowired
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-//
-//    private final UserRepository userRepository;
-//    private final BCryptPasswordEncoder passwordEncoder;
-//
-//    @Autowired
-//    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
-//        this.userRepository = userRepository;
-//        this.passwordEncoder = passwordEncoder;
-//    }
-//
-//    public User registerUser(User user) {
-//        // Encode the password
-//        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
-//        // Set default role as "user"
-//        user.setRole("user");
-//        return (User) userRepository.save(user);
-//    }
-//
-//    public Optional<User> findUserByUsername(String username) {
-//        return userRepository.findByUsername(username);
-//    }
-//
-//    public boolean userExists(String username) {
-//        return userRepository.findByUsername(username).isPresent();
-//    }
+    public User registerUser(User user) {
+        // Encode the password
+        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
+        // Set default role as "user"
+        user.setRole("ROLE_USER");
+        return userRepository.save(user);
+    }
+
+    public Optional<User> findUserByUsername(String username) {
+        return Optional.ofNullable(userRepository.findByUsername(username));
+    }
+
+    public boolean userExists(String username) {
+        return userRepository.findByUsername(username) != null;
+    }
 }

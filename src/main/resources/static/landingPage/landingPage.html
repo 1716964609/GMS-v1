@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻訳用語管理システム</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <a href="https://x.com/sunlightjetrans" target="_blank">
+                <img src="icon.jpg" alt="Iconic Image" class="iconic-image">
+            </a>
+            <h1>翻訳用語管理システム</h1>
+        </div>
+        <div class="header-right">
+            <button id="loginBtn">ログイン</button>
+            <button id="registerBtn">新規登録</button>
+        </div>
+    </header>
+
+    <!-- Login Form (Hidden initially) -->
+    <div id="loginForm" class="hidden">
+        <div class="form-content">
+            <button class="close-btn">&times;</button>
+            <h2>ログイン</h2>
+            <form>
+                <label for="username">ユーザー名:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">パスワード:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">ログイン</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Form (Hidden initially) -->
+    <div id="registerForm" class="hidden">
+        <div class="form-content">
+            <button class="close-btn">&times;</button>
+            <h2>新規登録</h2>
+            <form>
+                <label for="usernameReg">ユーザー名:</label>
+                <input type="text" id="usernameReg" name="usernameReg" required>
+                <label for="passwordReg">パスワード:</label>
+                <input type="password" id="passwordReg" name="passwordReg" required>
+                <button type="submit">登録</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <section class="left-section">
+            <h2>システムガイドライン</h2>
+            <p>このシステムは、<b>フリーランス翻訳者</b>向けに、用語の検索および管理を簡単に行うために作成された<b>無料サービス</b>です。現在のシステムの設計、コーディング、更新およびメンテナンスは、すべて作者<b>チェンイー リュウ</b>によって行われています。</p>
+            <h2>使用方法</h2>
+            <h3>新規登録</h3>
+            <p>初めてご利用の方は、アカウントを作成してください。登録後、ログインして用語閲覧と検索ができます。
+            <h3>管理者権限</h3>
+            <p>管理者権限を持つユーザーは、用語やリストの新規作成、更新、および削除が可能です。管理者権限の取得をご希望の方は、作者にてご連絡ください。</p>
+            <h2>著作権について</h2>
+            <p>システム内に含まれるすべての情報は、許可なく複製または配布することを禁止します。著作権法に基づき、適切な利用をお願いいたします。</p>
+        </section>
+
+        <section class="right-section">
+            <h2>お知らせ</h2>
+            <h3>今後の更新計画</h3>
+            <p>・メール認証機能に基づく仮登録とパスワード忘れ機能</p>
+            <p>・コンソールパネルでのキャッシュ技術導入によるローディング速度の向上</p>
+            <p>・最新の更新情報は、作者のX（旧Twitter）アカウントでご確認いただけます。画面左上にあるアイコンをクリックしてください。</p>
+            <h2>作者について</h2>
+            <p><b>チェンイー　リュウ</b></p>
+            <p>IT業界への転職しているソフトウェア開発エンジニア、元は日英医薬専門翻訳者。ご連絡は、<a href="mailto:HXLJ9909@outlook.jp">メール</a>までお願いします。</p>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        © 2024 翻訳用語管理システム. すべての権利を保有しています。
+        <a href="mailto:HXLJ9909@outlook.jp">チェンイー　リュウ</a>
+    </footer>
+</div>
+
+<script src="scripts.js"></script>
+</body>
+</html>
