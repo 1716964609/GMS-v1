@@ -159,7 +159,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('version-created-term').value = content.term.versionCreated; // Populate Version Created
         document.getElementById('version-now-term').value = content.term.versionNow; // Populate Current Version
         document.getElementById('version-abandoned-term').value = content.term.versionAbandoned; // Populate Version Abandoned
-        // populateListSelect;
         document.getElementById('list-for-term-id').value = content.list.listId;
         document.getElementById('list-for-term-name').value = content.list.listName;
         document.getElementById('update-term-btn').disabled = false;
@@ -220,9 +219,24 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('delete-term-btn').disabled = true;
 
 
+        // Clear terms table and add loading row
+        const termsTable = document.querySelector('.glossary-terms-content table tbody');
+        termsTable.innerHTML = ''; // Clear previous terms
+
+        // Add a loading row
+        const loadingRow = document.createElement('tr');
+        const loadingCell = document.createElement('td');
+        loadingCell.textContent = 'ローディング...'; // Show "loading..." in Japanese
+        loadingRow.appendChild(loadingCell);
+        termsTable.appendChild(loadingRow);
+
+
         //add fetch terms and populate
         const terms = await apiCall('/terms-in-list', 'POST', { listId: item.listId });
-        const termsTable = document.querySelector('.glossary-terms-content table tbody');
+
+
+
+        
         termsTable.innerHTML = ''; // Clear previous terms
         terms.forEach(term => {
             term.listName = item.listName;

@@ -125,15 +125,13 @@ footer {
 footer p {
     color: #333;
 }
-/* Add this to your existing styles.css */
-
-/* Add this to your existing styles.css */
-
 /* Iconic Image */
 .iconic-image {
     width: 50px; /* Adjust as necessary */
     height: auto;
     margin: 9px; /* Spacing between image and title */
+    border-radius: 50%;
+    object-fit : cover;
 }
 
 /* Form Styles */
