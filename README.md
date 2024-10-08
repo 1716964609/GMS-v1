@@ -15,6 +15,7 @@
 
 ## 技術スタック
 - **バックエンド**: Java (Spring Boot)
+- **フロントエンド**: HTML, CSS, Javascript
 - **データベース**: MySQL
 - **ホスティング**: AWS EC2, RDS
 - **ロードバランサー**: Nginx
