@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>翻訳用語管理システム</title>
+    <title>PoC: 翻訳用語管理システム（技術実証モデル）</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="container">
-    <!-- Header -->
     <header>
         <div class="header-left">
             <a href="https://x.com/sunlightjetrans" target="_blank">
                 <img src="icon.jpg" alt="Iconic Image" class="iconic-image">
             </a>
-            <h1>翻訳用語管理システム</h1>
+            <h1>PoC: 翻訳用語管理システム</h1>
         </div>
         <div class="header-right">
             <button id="loginBtn">ログイン</button>
@@ -22,14 +21,13 @@
         </div>
     </header>
 
-    <!-- Login Form (Hidden initially) -->
     <div id="loginForm" class="hidden">
         <div class="form-content">
             <button class="close-btn">&times;</button>
             <h2>ログイン</h2>
             <form>
-                <label for="username">ユーザー名:</label>
-                <input type="text" id="username" name="username" required>
+                <label for="username">ユーザー名 (Email):</label>
+                <input type="text" id="username" name="username" placeholder="example@mail.com" required>
                 <label for="password">パスワード:</label>
                 <input type="password" id="password" name="password" required>
                 <button type="submit">ログイン</button>
@@ -37,51 +35,61 @@
         </div>
     </div>
 
-    <!-- Register Form (Hidden initially) -->
     <div id="registerForm" class="hidden">
         <div class="form-content">
             <button class="close-btn">&times;</button>
-            <h2>新規登録</h2>
+            <h2>新規登録 (PoC用)</h2>
             <form>
-                <label for="usernameReg">ユーザー名:</label>
+                <label for="usernameReg">ユーザー名 (Email):</label>
                 <input type="text" id="usernameReg" name="usernameReg" required>
                 <label for="passwordReg">パスワード:</label>
                 <input type="password" id="passwordReg" name="passwordReg" required>
+                <p style="font-size: 0.8em; color: #eee; margin-top: 5px;">*登録によりプライバシーポリシーに同意したものとみなされます。</p>
                 <button type="submit">登録</button>
             </form>
         </div>
     </div>
 
-    <!-- Main Content -->
     <main>
         <section class="left-section">
-            <h2>システムガイドライン</h2>
-            <p>このシステムは、<b>フリーランス翻訳者</b>向けに、用語の検索および管理を簡単に行うために作成された<b>無料サービス</b>です。現在のシステムの設計、コーディング、更新およびメンテナンスは、すべて作者<b>チェンイー リュウ</b>によって行われています。</p>
-            <h2>使用方法</h2>
-            <h3>新規登録</h3>
-            <p>初めてご利用の方は、アカウントを作成してください。登録後、ログインして用語閲覧と検索ができます。
-            <h3>管理者権限</h3>
-            <p>管理者権限を持つユーザーは、用語やリストの新規作成、更新、および削除が可能です。管理者権限の取得をご希望の方は、作者にてご連絡ください。</p>
-            <h2>著作権について</h2>
-            <p>システム内に含まれるすべての情報は、許可なく複製または配布することを禁止します。著作権法に基づき、適切な利用をお願いいたします。</p>
+            <h2>PoC / 技術実証ガイドライン</h2>
+            <p>本プロジェクトは、言語学とIT技術の融合をテーマとした<b>概念実証（PoC）モデル</b>です。現在は機能開発を終了し、インフラ構成およびデータガバナンスの検証を目的とした<b>「個人技術の検証用静的アーカイブ」</b>として維持されています。</p>
+
+            <h3>データ合規性と知的財産権</h3>
+            <p>システム内に含まれる全ての専門用語データ（外部公開情報を含む）は、アーカイブ化された時点の状態（Legacy Data）で固定されています。</p>
+            <ul style="color: #555; font-size: 0.9em; margin-left: 20px;">
+                <li><b>著作権法第30条の4準拠:</b> 本システムは情報解析および技術検証のみを目的としており、権利者の利益を不当に害する「享受」を目的とした利用は行いません。</li>
+                <li><b>更新停止の明示:</b> データの更新、およびアプリケーション機能の追加は一切行われません。</li>
+                <li><b>インフラ検証:</b> 現在の稼働は、主にIaCやクラウドアーキテクチャの構築検証を目的とした実験として継続されています。</li>
+            </ul>
+
+            <div style="background-color: #f8f8fa; border: 1px solid #9b9bc7; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                <h3 style="margin-top:0;">免責事項 (Disclaimer)</h3>
+                <p style="font-size: 0.85em;">
+                    本システムは<b>「現状有姿」</b>にて提供されるプロトタイプです。
+                    開発者は、プログラムの瑕疵、データの正確性、および最新性について一切の保証をいたしません。
+                    本システムの利用により生じた損害について、開発者は法的な責任を負わないものとします。
+                    実務における利用は固く禁じます。
+                </p>
+            </div>
         </section>
 
         <section class="right-section">
-            <h2>お知らせ</h2>
-            <h3>今後の更新計画</h3>
-            <p>・メール認証機能に基づく仮登録とパスワード忘れ機能</p>
-            <p>・コンソールパネルでのキャッシュ技術導入によるローディング速度の向上</p>
-            <p>・最新の更新情報は、作者のX（旧Twitter）アカウントでご確認いただけます。画面左上にあるアイコンをクリックしてください。</p>
-            <h2>作者について</h2>
+            <h2>プライバシーポリシー</h2>
+            <p><b>収集情報:</b> 認証用のメールアドレスおよびハッシュ化パスワードのみ。ログインセッション管理以外の目的には使用しません。</p>
+            <p><b>外部送信について:</b> 本システムは、CookieやSDKを利用した第三者への個人情報の送信は一切行いません。</p>
+
+            <h2>開発者について</h2>
             <p><b>チェンイー　リュウ</b></p>
-            <p>IT業界への転職しているソフトウェア開発エンジニア、元は日英医薬専門翻訳者。ご連絡は、<a href="mailto:HXLJ9909@outlook.jp">メール</a>までお願いします。</p>
+            <p>ITコンサルタント / インフラエンジニア。<br>
+                言語学修士の論理性をバックボーンに、ITインフラ・財務・法务の三位一体による「技術の資産化」を追求。本PoCは、レガシーシステムのクラウド移行および堅牢なガバナンス構築の検証サンプルとして維持されています。</p>
+            <p>ご連絡：<a href="mailto:HXLJ9909@outlook.jp">HXLJ9909@outlook.jp</a></p>
         </section>
     </main>
 
-    <!-- Footer -->
     <footer>
-        © 2024 翻訳用語管理システム. すべての権利を保有しています。
-        <a href="mailto:HXLJ9909@outlook.jp">チェンイー　リュウ</a>
+        © 2024-<span id="currentYear"></span> 翻訳用語管理 PoC Project.
+        <br><small>Static Archive Mode / Infrastructure Lab Usage Only.</small>
     </footer>
 </div>
 

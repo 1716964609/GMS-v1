@@ -1,3 +1,9 @@
+/* ============================================================
+   PoC 用語管理システム - ユーザーパネル (閲覧専用) CSS
+   Layout Fix: Flexboxによるフッター文字切れの解消
+   ============================================================ */
+
+/* 全般リセット */
 * {
     margin: 0;
     padding: 0;
@@ -7,179 +13,144 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
+    /* 防止移动端回弹导致的布局跳动 */
+    overscroll-behavior-y: none;
 }
 
+/* 容器：100vh 满屏，使用 Flex 垂直排列 */
 .container {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    overflow: hidden; /* 防止最外层出现不必要的滚动条 */
 }
 
+/* Header：固定高度，不缩放 */
 .header {
     text-align: center;
     background-color: #9b9bc7;
     color: white;
-    padding: 10px;
+    padding: 15px; /* 增加呼吸感 */
+    flex-shrink: 0; /* 禁止收缩，确保标题完整 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+.header h1 {
+    font-size: 1.5rem;
+}
+
+/* 主内容区：占据剩余所有空间 */
 .main-content {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* Five columns */
-    gap: 20px;
-    flex: 1;
-    padding: 20px;
-    height: 90%;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* 五列布局 */
+    gap: 15px;
+    flex: 1; /* 自动填充 Header 和 Footer 之外的所有高度 */
+    padding: 15px;
+    min-height: 0; /* 关键：允许内部元素滚动而非撑破父容器 */
+    background-color: #f0f0f5;
 }
 
-.search-section {
-    flex: 1;
-    grid-column: span 1; /* Single column */
-    background-color: white;
-    border: 1px solid #ccc;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    gap: 20px;
-}
-
-.search-form {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.search-form input {
-    flex: 1;
-    padding: 10px;
-}
-
-.search-form button {
-    padding: 10px 20px;
-}
-
-.search-results {
-    flex: 1;
-    overflow-y: auto;
-    max-height: 75vh;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #000; /* Visible table border */
-}
-
-th, td {
-    padding: 10px;
-    border: 1px solid #000; /* Visible table border */
-    text-align: left;
-}
-
-textarea {
-    width: 100%;
-    height: 50px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    resize: none;
-}
-
+/* 各个板块：背景白化，内部独立滚动 */
+.search-section,
 .glossary-lists-section,
 .glossary-list-details-section,
 .glossary-terms-section,
 .glossary-term-details-section {
     background-color: white;
     border: 1px solid #ccc;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 15px;
     gap: 10px;
-    overflow-y: auto; /* Scrollable content */
+    overflow-y: auto; /* 关键：当内容超出时，只在板块内部显示滚动条 */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.glossary-lists-section, 
-.glossary-terms-section {
-    grid-column: span 1; /* Left columns for lists and terms */
-    max-height: 85vh;
+/* 搜索表单 */
+.search-form {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* 表格样式 */
+.search-results,
+.glossary-lists-content,
+.glossary-terms-content {
+    flex: 1;
     overflow-y: auto;
 }
 
-.glossary-list-details-section, 
-.glossary-term-details-section {
-    grid-column: span 1; /* Right columns for list and term details */
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.glossary-lists-header,
-.glossary-terms-header {
-    display: flex;
-    gap: 10px;
-}
-
-.glossary-lists-header button,
-.glossary-terms-header button {
-    padding: 10px 20px;
-}
-
-.footer {
-    text-align: center;
+th, td {
     padding: 10px;
-    background-color: #9b9bc7;
-    color: white;
-    height: 5%;
+    border: 1px solid #eee;
+    text-align: left;
+    font-size: 0.9em;
 }
 
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed;
-    z-index: 1; /* Sit on top */
-    left: 0;
+th {
+    background-color: #f8f8fa;
+    position: sticky; /* 表头固定 */
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    z-index: 1;
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
+tr:hover td {
+    background-color: #f0f0ff;
     cursor: pointer;
 }
 
-input,
+/* 文本域：只读样式 */
 textarea {
     width: 100%;
+    height: 60px;
     padding: 8px;
-
-    box-sizing: border-box;
+    border: 1px solid #eee;
+    background-color: #fcfcfc;
+    resize: none;
+    font-size: 0.9em;
+    color: #333;
 }
 
-button {
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
+textarea:disabled {
+    color: #666;
+    cursor: not-allowed;
 }
 
-button:hover {
-    background-color: #7b7bc0;
+/* Footer：底部自动适应，高度由内容决定，不缩放 */
+.footer {
+    text-align: center;
+    padding: 12px;
+    background-color: #9b9bc7;
+    color: white;
+    flex-shrink: 0; /* 绝对禁止收缩，解决文字被吞掉的问题 */
+    font-size: 0.85em;
+    line-height: 1.5;
+    border-top: 1px solid rgba(255,255,255,0.2);
 }
 
-textarea {
-    resize: vertical;
+.footer small {
+    display: block;
+    margin-top: 4px;
+    opacity: 0.8;
+}
+
+/* 响应式调整 (可选：针对小屏幕) */
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr 1fr; /* 屏幕窄时改为两列 */
+    }
 }

@@ -146,3 +146,23 @@ overlay.addEventListener('click', hideForms);
 // Attach event listeners to forms
 loginForm.querySelector('form').addEventListener('submit', handleLogin);
 registerForm.querySelector('form').addEventListener('submit', handleRegister);
+
+
+
+/**
+ * 合規性管理: フッターのコピーライト年数を自動更新
+ * ITコンサルタントとしての保守性向上を目的とした実装
+ */
+function updateFooterYear() {
+    const yearSpan = document.getElementById('currentYear');
+    if (yearSpan) {
+        const currentYear = new Date().getFullYear();
+        yearSpan.textContent = currentYear;
+    }
+}
+
+// 既存のイベントリスナーに加えて、DOMロード時に実行
+document.addEventListener('DOMContentLoaded', () => {
+    updateFooterYear();
+    // ここに他の初期化処理があれば追加
+});

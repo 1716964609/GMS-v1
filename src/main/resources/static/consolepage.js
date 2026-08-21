@@ -567,3 +567,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 });
+
+
+
+/**
+ * 閲覧用モデル: フッターのコピーライト年数を自動更新
+ */
+function updateFooterYear() {
+    const yearSpan = document.getElementById('currentYear');
+    if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
+    }
+}
+
+// 确保在页面内容加载后运行
+document.addEventListener('DOMContentLoaded', updateFooterYear);
