@@ -1,0 +1,31 @@
+[Unit]
+Description=GMS-v2 Reconstructed Java Application Service
+
+# Start GMS after the network and MySQL are available.
+After=network.target mysqld.service
+
+[Service]
+
+# Run the application from the EC2 user home directory.
+User=root
+WorkingDirectory=/home/ec2-user
+
+# Start the reconstructed GMS-v2 fat JAR.
+# JVM heap size:
+#   Initial heap: 256 MB
+#   Maximum heap: 384 MB
+ExecStart=/usr/bin/java -Xms256m -Xmx384m -jar /home/ec2-user/GMS-v2-reconstructed.jar
+
+# Automatically restart the application if the process terminates unexpectedly.
+# Wait 10 seconds before restarting.
+Restart=always
+RestartSec=10
+
+# Write both standard output and error logs to the same log file.
+StandardOutput=append:/home/ec2-user/tgms.log
+StandardError=append:/home/ec2-user/tgms.log
+
+[Install]
+
+# Start this service automatically during the normal multi-user boot process.
+WantedBy=multi-user.target

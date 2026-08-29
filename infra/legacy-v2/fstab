@@ -1,0 +1,7 @@
+#
+UUID=693eea79-11af-44b1-9c1e-01aced209966     /           xfs    defaults,noatime  1   1
+UUID=A41B-D0D1        /boot/efi       vfat    defaults,noatime,uid=0,gid=0,umask=0077,shortname=winnt,x-systemd.automount 0 2
+
+# MySQL Data on 2GiB EBS Volume
+UUID=208d7a5a-df20-4ae5-822f-8fb8cd468643 /var/lib/mysql xfs defaults,nofail 0 2
+/swapfile swap swap defaults 0 0
