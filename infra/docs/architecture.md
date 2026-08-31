@@ -1031,3 +1031,213 @@ Cross-region Dependencies
 
 この Dependency Analysis が完了するまでは、
 Terraform import を開始しない。
+
+---
+
+# Verified GMS v2 Runtime Architecture - 2026-08-31
+
+> 以下は AWS CLI、DreamHost DNS 設定、および EC2 実機確認によって裏付けられた現行 GMS v2 の構成である。
+
+## Public Request Path
+
+    Client
+      |
+      | HTTPS
+      v
+    DreamHost authoritative DNS
+      |
+      | sunlightjetrans.com
+      v
+    Amazon CloudFront
+      |
+      +-- ACM certificate (us-east-1)
+      |
+      +-- AWS WAF
+      |
+      | HTTP / IPv6 / port 80
+      v
+    origin.sunlightjetrans.com
+      |
+      | AAAA
+      v
+    2406:da14:190f:d6a8:6c4a:da24:5520:8a7e
+      |
+      v
+    Internet Gateway
+      |
+      v
+    Route Table
+      |
+      v
+    Public Subnet
+      |
+      v
+    Security Group
+      |
+      v
+    ENI
+      |
+      v
+    EC2
+      |
+      | HTTP :80
+      v
+    Nginx
+      |
+      | HTTP
+      v
+    Spring Boot / GMS :8080
+      |
+      v
+    MySQL
+      |
+      v
+    Dedicated EBS
+    /var/lib/mysql
+
+## HTTPS Termination
+
+Public HTTPS terminates at CloudFront.
+
+    Browser
+      |
+      | HTTPS
+      v
+    CloudFront + ACM
+      |
+      | HTTP
+      v
+    Nginx :80
+
+Therefore, the Let's Encrypt / Certbot configuration currently present on the EC2 instance is not required for the currently verified public HTTPS path.
+
+It is treated as legacy configuration until the reconstruction process is complete.
+
+## Persistence Model
+
+The current GMS architecture intentionally separates disposable compute from persistent database data.
+
+    Spot EC2
+    |
+    +-- Root EBS
+    |   DeleteOnTermination = true
+    |   Mount = /
+    |
+    +-- MySQL EBS
+        DeleteOnTermination = false
+        Mount = /var/lib/mysql
+
+The Spot request is persistent and uses `stop` as the interruption behavior.
+
+This architecture preserves the database volume independently from the disposable compute layer.
+
+## Reconstruction Responsibility
+
+GMS v3.1 separates reconstruction responsibility into the following layers.
+
+    Terraform
+    |
+    +-- AWS infrastructure
+    |   +-- VPC
+    |   +-- Subnet
+    |   +-- Routing
+    |   +-- Security Group
+    |   +-- EC2 / Spot
+    |   +-- EBS
+    |   +-- CloudFront
+    |   +-- ACM
+    |   +-- WAF
+    |
+    +-- Bootstrap / Git-managed configuration
+    |   +-- Amazon Linux environment
+    |   +-- Java
+    |   +-- Nginx
+    |   +-- MySQL server
+    |   +-- systemd unit
+    |   +-- filesystem / mount configuration
+    |
+    +-- Git / CI-CD
+    |   +-- GMS source
+    |   +-- build
+    |   +-- application deployment
+    |
+    +-- Persistent data / recovery
+        +-- existing MySQL EBS
+        +-- MySQL EBS Snapshot
+
+Terraform does not by itself reconstruct all software and configuration inside the EC2 instance.
+
+The EC2 internal environment must therefore be captured and converted into reproducible bootstrap/configuration code.
+
+## Database Recovery Policy
+
+The GMS v3.1 database recovery order is:
+
+    1. Existing MySQL EBS
+           |
+           v
+       attach to reconstructed EC2
+           |
+           v
+       mount at /var/lib/mysql
+
+    2. If the EBS itself is lost:
+           |
+           v
+       restore a new EBS from the baseline snapshot
+           |
+           v
+       attach and mount
+
+    3. SQL dump
+       not used in the current GMS v3.1 recovery design
+
+## Recovery Snapshots
+
+The current v2 baseline recovery assets are:
+
+    Root:
+    snap-00ebdd9048a27089e
+    GMS-v2-fixed-root
+
+    MySQL:
+    snap-01f0e460273843840
+    GMS-v2-fixed-mysql-data
+
+These are recovery assets rather than the primary mechanism for reconstructing the infrastructure.
+
+The target GMS v3.1 design is to reconstruct the EC2 environment from code without depending on the root snapshot.
+
+## External Dependency
+
+DreamHost remains outside the initial Terraform management boundary.
+
+It currently provides:
+
+    Authoritative DNS
+    |
+    +-- sunlightjetrans.com
+    |   -> CloudFront
+    |
+    +-- origin.sunlightjetrans.com
+    |   -> GMS EC2 IPv6
+    |
+    +-- ACM validation CNAME
+        -> AWS ACM validation endpoint
+
+A Terraform reconstruction must therefore account for this external DNS dependency.
+
+## Current Reconstruction Status
+
+    v2 source freeze                         COMPLETE
+    Terraform local initialization           COMPLETE
+    AWS resource discovery                   COMPLETE
+    AWS Dependency Analysis                  COMPLETE
+    EC2 Internal Inventory                   NEXT
+    EC2 configuration capture                NEXT
+    Bootstrap implementation                 PENDING
+    Terraform import                         PENDING
+    No-unintended-change terraform plan      PENDING
+    Fresh reconstruction test                PENDING
+
+The next phase is to inspect and preserve the current EC2 internal configuration before Terraform import begins.

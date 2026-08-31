@@ -922,3 +922,358 @@ lifecycle {
 を利用する方向で設計する。
 
 最終的には、Terraform Code と実際の GMS Infrastructure が意図した範囲で一致している状態を GMS v3.1 Step 2 の完成とする。
+
+---
+
+# AWS Dependency Analysis - Confirmed State (2026-08-31)
+
+> このセクションは、2026-08-31 に AWS CLI と EC2 実機で確認した現行 GMS v2 の確定情報である。
+> 本文中に以前の `candidate` / `unknown` 分類が残っている場合、このセクションの確定情報を優先する。
+>
+> AWS Dependency Analysis はこの時点で完了とする。
+
+## 1. Compute
+
+### EC2
+
+- Instance ID: `i-08e35c2a08562e6e7`
+- Instance type: `t3a.micro`
+- Architecture: `x86_64`
+- Platform: `Linux/UNIX`
+- Availability Zone: `ap-northeast-1a`
+- Private IPv4: `10.0.7.116`
+- Public IPv4: none
+- Public IPv6: `2406:da14:190f:d6a8:6c4a:da24:5520:8a7e`
+- IAM Instance Profile: none
+- Key Pair: `spring`
+- Detailed Monitoring: disabled
+- IMDS:
+  - endpoint: enabled
+  - tokens: required
+  - IMDSv2 required
+- Source/Destination Check: enabled
+
+### Spot
+
+- Spot Request ID: `sir-8smfdayg`
+- Type: `persistent`
+- State: `active`
+- Interruption behavior: `stop`
+- Spot price recorded in current request: `0.012200 USD/hour`
+- Public IPv4 assignment: disabled
+- IPv6 address count: `1`
+
+The current IPv6 assignment is explicitly requested by the Spot launch specification.
+The subnet itself does not automatically assign IPv6 addresses.
+
+## 2. Network
+
+### VPC
+
+- VPC ID: `vpc-0a798b79427124107`
+- Name: `プロジェクトnew tgms-vpc`
+- IPv4 CIDR: `10.0.0.0/16`
+- IPv6 CIDR: `2406:da14:190f:d600::/56`
+- Default VPC: false
+- DNS support: enabled
+- DNS hostnames: enabled
+- DHCP Options: `dopt-0ecfbe765106b620f`
+  - domain name: `ap-northeast-1.compute.internal`
+  - DNS: `AmazonProvidedDNS`
+
+### Subnet
+
+- Subnet ID: `subnet-0661039664bcdb978`
+- Name: `プロジェクトnew tgms-subnet-public1-ap-northeast-1a`
+- Availability Zone: `ap-northeast-1a`
+- IPv4 CIDR: `10.0.0.0/20`
+- IPv6 CIDR: `2406:da14:190f:d600::/56`
+- `MapPublicIpOnLaunch = false`
+- `AssignIpv6AddressOnCreation = false`
+
+### Internet Gateway
+
+- Internet Gateway ID: `igw-097835adb8ee089a7`
+- Name: `プロジェクトnew tgms-igw`
+- Attached VPC: `vpc-0a798b79427124107`
+
+### Route Table
+
+- Route Table ID: `rtb-0a458b7a383a5e645`
+- Name: `プロジェクトnew tgms-rtb-public`
+- Explicitly associated with:
+  - `subnet-0661039664bcdb978`
+
+Routes:
+
+- `10.0.0.0/16` -> local
+- `2406:da14:190f:d600::/56` -> local
+- `0.0.0.0/0` -> `igw-097835adb8ee089a7`
+- `::/0` -> `igw-097835adb8ee089a7`
+
+### ENI
+
+- ENI ID: `eni-0c26b8c26d885b76f`
+- Device index: `0`
+- Attached EC2: `i-08e35c2a08562e6e7`
+- VPC: `vpc-0a798b79427124107`
+- Subnet: `subnet-0661039664bcdb978`
+- Private IPv4: `10.0.7.116`
+- Public IPv4: none
+- IPv6: `2406:da14:190f:d6a8:6c4a:da24:5520:8a7e`
+- Security Group: `sg-0603e1bce6fe132af`
+- Delete on EC2 termination: true
+- Source/Destination Check: true
+
+The ENI IPv6 address exactly matches the DreamHost DNS AAAA record for `origin.sunlightjetrans.com`.
+
+### Security Group
+
+- Security Group ID: `sg-0603e1bce6fe132af`
+- Name: `launch-wizard-2`
+
+Inbound:
+
+- TCP/80 from `::/0`
+- TCP/22 from `0.0.0.0/0`
+- TCP/22 from `::/0`
+
+Outbound:
+
+- all protocols to `0.0.0.0/0`
+- all protocols to `::/0`
+
+SSH exposure is recorded as the current v2 state.
+Security hardening is intentionally deferred until after reproducible reconstruction succeeds.
+
+### Network ACL
+
+- Network ACL ID: `acl-0eebbe8a340fe0b23`
+- Default NACL: true
+- Associated with the GMS subnet
+- IPv4 and IPv6 traffic are allowed by the current normal rules.
+
+Classification:
+
+- AWS/VPC default resource
+- not an independent GMS-specific Terraform resource in the initial management boundary
+
+## 3. Storage
+
+### Root EBS
+
+- Volume ID: `vol-0320ea45ddeed577c`
+- Size: `8 GiB`
+- Type: `gp3`
+- Availability Zone: `ap-northeast-1a`
+- Encrypted: false
+- AWS device: `/dev/xvda`
+- Linux device: `/dev/nvme0n1`
+- Root partition: `/dev/nvme0n1p1`
+- Mount point: `/`
+- DeleteOnTermination: true
+
+The AWS volume ID and Linux NVMe device mapping were verified through `/dev/disk/by-id`.
+
+### MySQL Data EBS
+
+- Volume ID: `vol-00547ee69f9364ec0`
+- Size: `2 GiB`
+- Type: `gp3`
+- Availability Zone: `ap-northeast-1a`
+- Encrypted: false
+- AWS device: `/dev/sdf`
+- Linux device: `/dev/nvme1n1`
+- Mount point: `/var/lib/mysql`
+- DeleteOnTermination: false
+
+The AWS volume ID and Linux NVMe device mapping were verified through `/dev/disk/by-id`.
+
+This volume is the persistent database data layer and must be strongly protected from accidental destruction.
+
+## 4. Recovery Assets
+
+### Current v2 baseline snapshots
+
+Root:
+
+- Snapshot ID: `snap-00ebdd9048a27089e`
+- Name: `GMS-v2-fixed-root`
+- Source Volume: `vol-0320ea45ddeed577c`
+- Size: `8 GiB`
+- MountPoint tag: `/`
+- Purpose: `baseline`
+
+MySQL:
+
+- Snapshot ID: `snap-01f0e460273843840`
+- Name: `GMS-v2-fixed-mysql-data`
+- Source Volume: `vol-00547ee69f9364ec0`
+- Size: `2 GiB`
+- MountPoint tag: `/var/lib/mysql`
+- Purpose: `baseline`
+
+These snapshots are recovery assets.
+They are not initially treated as normal Terraform-managed resources.
+
+Database recovery policy for GMS v3.1:
+
+1. existing MySQL EBS
+2. MySQL EBS snapshot
+3. SQL dump is not part of the current recovery design
+
+### Legacy AMI / Snapshot
+
+- AMI: `ami-084a581e02ce361c7`
+- Name: `tmgs-v2-swap`
+- Created from current GMS EC2 in January 2026
+- Backing Snapshot: `snap-0fcfdb221e827affe`
+
+Classification:
+
+- Legacy recovery assets
+- not part of the GMS v3.1 Terraform management boundary
+- no immediate deletion is required
+
+The original source AMI of the current EC2 is:
+
+- `ami-02bf4b2a72125c870`
+
+It is no longer returned by `DescribeImages`, so it must not be relied upon as the reconstruction source for GMS v3.1.
+
+## 5. Public Edge
+
+### CloudFront
+
+- Distribution ID: `E1EF0DWDYA2XH8`
+- CloudFront domain: `d2yxdtkikux26e.cloudfront.net`
+- Alias: `sunlightjetrans.com`
+- Enabled: true
+- IPv6: enabled
+- HTTP version: HTTP/2
+- Viewer protocol policy: `redirect-to-https`
+- Minimum TLS version: `TLSv1.2_2021`
+- Price class: `PriceClass_All`
+- Logging: disabled
+- Origin Shield: disabled
+
+Origin:
+
+- Domain: `origin.sunlightjetrans.com`
+- Protocol: HTTP only
+- HTTP port: 80
+- Origin IP address type: IPv6
+
+Allowed methods:
+
+- GET
+- HEAD
+- OPTIONS
+- PUT
+- POST
+- PATCH
+- DELETE
+
+Cached methods:
+
+- GET
+- HEAD
+
+### ACM
+
+CloudFront certificate:
+
+- Region: `us-east-1`
+- Domain: `sunlightjetrans.com`
+- SAN:
+  - `sunlightjetrans.com`
+  - `*.sunlightjetrans.com`
+- Status: `ISSUED`
+- Validation: DNS
+- Renewal eligibility: `ELIGIBLE`
+- Certificate type: Amazon-issued
+- In use by CloudFront distribution `E1EF0DWDYA2XH8`
+
+The ACM DNS validation record is hosted in DreamHost DNS.
+
+### WAF
+
+- Web ACL: `CreatedByCloudFront-056855fc`
+- Scope: CloudFront
+- Default action: Allow
+- Managed by Firewall Manager: false
+
+Rules:
+
+1. `AWS-RateBasedRule-IP-300-CreatedByCloudFront`
+   - 300 requests / 300 seconds / IP
+   - action: Count
+
+2. `AWS-AWSManagedRulesAmazonIpReputationList`
+
+3. `AWS-AWSManagedRulesCommonRuleSet`
+
+4. `AWS-AWSManagedRulesKnownBadInputsRuleSet`
+
+The rate-based rule currently counts matching requests rather than blocking them.
+This is recorded as the current v2 behavior and will not be changed during the reconstruction phase.
+
+## 6. External DNS
+
+Authoritative DNS and registrar:
+
+- DreamHost
+
+Relevant records:
+
+- `sunlightjetrans.com` -> CloudFront distribution
+- `origin.sunlightjetrans.com` -> `2406:da14:190f:d6a8:6c4a:da24:5520:8a7e`
+- ACM DNS validation CNAME -> `acm-validations.aws`
+
+DreamHost DNS is outside the initial AWS Terraform management boundary.
+
+## 7. Initial Terraform Management Classification
+
+### Terraform-managed
+
+- VPC
+- Subnet
+- Internet Gateway
+- Route Table
+- Route Table association
+- Security Group
+- EC2 / Spot configuration
+- required IPv6 configuration
+- Root EBS
+- MySQL EBS
+- EBS attachment
+- CloudFront
+- WAF Web ACL
+- ACM certificate / AWS-side configuration
+
+### External or separately managed
+
+- DreamHost DNS
+- `spring.pem`
+- secrets
+- current v2 baseline snapshots
+
+### AWS default / standard
+
+- Default Network ACL
+- AmazonProvidedDNS / standard DHCP options
+
+### Legacy
+
+- `ami-084a581e02ce361c7`
+- `snap-0fcfdb221e827affe`
+
+## 8. AWS Dependency Analysis Status
+
+As of 2026-08-31:
+
+**AWS Dependency Analysis: COMPLETE**
+
+Next phase:
+
+**EC2 Internal Inventory and configuration capture**
