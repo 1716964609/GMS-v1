@@ -1022,10 +1022,16 @@ Routes:
 - Public IPv4: none
 - IPv6: `2406:da14:190f:d6a8:6c4a:da24:5520:8a7e`
 - Security Group: `sg-0603e1bce6fe132af`
-- Delete on EC2 termination: true
+- Delete on EC2 termination: false
 - Source/Destination Check: true
 
 The ENI IPv6 address exactly matches the DreamHost DNS AAAA record for `origin.sunlightjetrans.com`.
+
+`DeleteOnTermination` was changed from `true` to `false` on 2026-09-02 so that the ENI can survive EC2 termination and serve as persistent network identity.
+
+The target Terraform design will manage this ENI separately from the disposable Spot EC2 instance and explicitly reuse it as the primary network interface of a replacement instance.
+
+The currently running Spot request predates this design, so ENI reuse on replacement is not yet considered reconstruction-tested.
 
 ### Security Group
 
@@ -1242,8 +1248,8 @@ DreamHost DNS is outside the initial AWS Terraform management boundary.
 - Route Table
 - Route Table association
 - Security Group
+- Persistent ENI / IPv6 network identity
 - EC2 / Spot configuration
-- required IPv6 configuration
 - Root EBS
 - MySQL EBS
 - EBS attachment

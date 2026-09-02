@@ -1115,8 +1115,17 @@ It is treated as legacy configuration until the reconstruction process is comple
 
 ## Persistence Model
 
-The current GMS architecture intentionally separates disposable compute from persistent database data.
+The current GMS architecture separates disposable compute from persistent network identity and persistent database data.
 
+    Persistent ENI
+    |   ENI = eni-0c26b8c26d885b76f
+    |   DeviceIndex = 0
+    |   DeleteOnTermination = false
+    |   IPv6 = 2406:da14:190f:d6a8:6c4a:da24:5520:8a7e
+    |
+    +-- Primary network interface
+        |
+        v
     Spot EC2
     |
     +-- Root EBS
@@ -1129,7 +1138,19 @@ The current GMS architecture intentionally separates disposable compute from per
 
 The Spot request is persistent and uses `stop` as the interruption behavior.
 
-This architecture preserves the database volume independently from the disposable compute layer.
+The target lifecycle model is:
+
+    EC2        = disposable compute
+    ENI        = persistent network identity
+    MySQL EBS  = persistent database data
+
+The current ENI has been changed from `DeleteOnTermination = true` to `false`.
+
+The currently running Spot request was created before this persistent-ENI reconstruction design and does not yet guarantee reuse of this ENI by a replacement Spot instance.
+
+Terraform must therefore model the ENI separately and configure a replacement Spot EC2 instance to use this ENI as its primary network interface.
+
+Until that Terraform configuration is complete and reconstruction-tested, the current EC2 instance must not be intentionally terminated for recovery testing.
 
 ## Reconstruction Responsibility
 
@@ -1142,6 +1163,7 @@ GMS v3.1 separates reconstruction responsibility into the following layers.
     |   +-- Subnet
     |   +-- Routing
     |   +-- Security Group
+    |   +-- Persistent ENI / IPv6 network identity
     |   +-- EC2 / Spot
     |   +-- EBS
     |   +-- CloudFront
@@ -1220,12 +1242,16 @@ It currently provides:
     |   -> CloudFront
     |
     +-- origin.sunlightjetrans.com
-    |   -> GMS EC2 IPv6
+    |   -> Persistent GMS ENI IPv6
     |
     +-- ACM validation CNAME
         -> AWS ACM validation endpoint
 
 A Terraform reconstruction must therefore account for this external DNS dependency.
+
+Under the target persistent-ENI design, ordinary EC2 replacement should reuse the existing ENI and preserve the origin IPv6 address. In that recovery path, the DreamHost `origin.sunlightjetrans.com` AAAA record does not need to change.
+
+If the ENI itself is lost or recreated, the external DNS dependency becomes active again and the DreamHost AAAA record may require an update.
 
 ## Current Reconstruction Status
 
