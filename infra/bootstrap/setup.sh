@@ -118,7 +118,7 @@ wait_for_mysql_volume() {
 
   log "Waiting for MySQL EBS filesystem UUID ${MYSQL_FS_UUID}"
 
-  for attempt in {1..60}; do
+  for attempt in {1..300}; do
     device_count="$(
       blkid -t "UUID=${MYSQL_FS_UUID}" -o device 2>/dev/null \
         | sed '/^[[:space:]]*$/d' \
@@ -137,7 +137,7 @@ wait_for_mysql_volume() {
     sleep 2
   done
 
-  fail "MySQL EBS filesystem UUID ${MYSQL_FS_UUID} was not detected within 120 seconds."
+  fail "MySQL EBS filesystem UUID ${MYSQL_FS_UUID} was not detected within 600 seconds."
 }
 
 configure_mysql_mount() {
