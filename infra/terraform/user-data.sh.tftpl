@@ -1,0 +1,41 @@
+#!/bin/bash
+set -euo pipefail
+
+install -d -m 0755 /opt/gms-bootstrap
+install -d -m 0755 /opt/gms-bootstrap/nginx
+install -d -m 0755 /opt/gms-bootstrap/mysql
+install -d -m 0755 /opt/gms-bootstrap/systemd
+
+printf '%s' '${setup_sh}' \
+  | base64 --decode \
+  | gzip --decompress \
+  > /opt/gms-bootstrap/setup.sh
+
+printf '%s' '${nginx_conf}' \
+  | base64 --decode \
+  | gzip --decompress \
+  > /opt/gms-bootstrap/nginx/nginx.conf
+
+printf '%s' '${nginx_default_conf}' \
+  | base64 --decode \
+  | gzip --decompress \
+  > /opt/gms-bootstrap/nginx/default.conf
+
+printf '%s' '${mysql_conf}' \
+  | base64 --decode \
+  | gzip --decompress \
+  > /opt/gms-bootstrap/mysql/my.cnf
+
+printf '%s' '${tgms_service}' \
+  | base64 --decode \
+  | gzip --decompress \
+  > /opt/gms-bootstrap/systemd/tgms.service
+
+printf '%s' '${mysqld_mount_conf}' \
+  | base64 --decode \
+  | gzip --decompress \
+  > /opt/gms-bootstrap/systemd/mysqld-mount.conf
+
+chmod 0755 /opt/gms-bootstrap/setup.sh
+
+exec /opt/gms-bootstrap/setup.sh

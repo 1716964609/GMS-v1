@@ -3,6 +3,8 @@ resource "aws_instance" "gms" {
   instance_type = "t3a.micro"
   key_name      = "spring"
 
+  user_data = local.gms_bootstrap_user_data
+
   availability_zone = "ap-northeast-1a"
 
   ebs_optimized = true
@@ -43,7 +45,8 @@ resource "aws_instance" "gms" {
     prevent_destroy = true
 
     ignore_changes = [
-      ami
+      ami,
+      user_data
     ]
   }
 }
