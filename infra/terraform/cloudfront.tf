@@ -11,7 +11,7 @@ resource "aws_cloudfront_distribution" "gms" {
   price_class         = "PriceClass_All"
   http_version        = "http2"
 
-  web_acl_id = "arn:aws:wafv2:us-east-1:180294215932:global/webacl/CreatedByCloudFront-056855fc/70949ab2-45bd-432f-bd01-56e89676739a"
+  web_acl_id = aws_wafv2_web_acl.gms.arn
 
   origin {
     domain_name = "origin.sunlightjetrans.com"
@@ -75,7 +75,7 @@ resource "aws_cloudfront_distribution" "gms" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "arn:aws:acm:us-east-1:180294215932:certificate/7e970d09-0bf1-4ca4-ba04-dedb6f3dbffb"
+    acm_certificate_arn      = aws_acm_certificate.gms.arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
