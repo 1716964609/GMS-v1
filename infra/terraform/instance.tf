@@ -1,5 +1,5 @@
 resource "aws_instance" "gms" {
-  ami           = "ami-02bf4b2a72125c870"
+  ami           = data.aws_ssm_parameter.al2023_ami.insecure_value
   instance_type = "t3a.micro"
   key_name      = "spring"
 
@@ -41,5 +41,9 @@ resource "aws_instance" "gms" {
 
   lifecycle {
     prevent_destroy = true
+
+    ignore_changes = [
+      ami
+    ]
   }
 }
