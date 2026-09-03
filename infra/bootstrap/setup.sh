@@ -17,6 +17,8 @@ readonly MYSQL_EXPECTED_UID="27"
 readonly MYSQL_EXPECTED_GID="27"
 readonly MYSQL_DATABASE_DIR="${MYSQL_MOUNT}/tgms"
 readonly MYSQL_SERVER_VERSION="8.0.44-1.el9"
+readonly MYSQL_REPO_RPM_URL="https://repo.mysql.com/mysql80-community-release-el9-5.noarch.rpm"
+readonly MYSQL_GPG_KEY_URL="https://repo.mysql.com/RPM-GPG-KEY-mysql-2023"
 
 readonly NGINX_CONF_SOURCE="${SCRIPT_DIR}/nginx/nginx.conf"
 readonly NGINX_SITE_SOURCE="${SCRIPT_DIR}/nginx/default.conf"
@@ -66,16 +68,20 @@ install_runtime_packages() {
     java-17-amazon-corretto-headless \
     nginx
 
-  if ! rpm -q mysql80-community-release >/dev/null 2>&1; then
-    log "Installing MySQL Community repository"
+  log "Installing/updating MySQL Community repository"
 
-    dnf install -y \
-      https://repo.mysql.com/mysql80-community-release-el9-1.noarch.rpm
-  else
-    log "MySQL Community repository is already installed"
-  fi
+  dnf install -y "${MYSQL_REPO_RPM_URL}"
 
-  # mysql-community-server is deliberately installed only after
+  log "Importing MySQL package signing key"
+
+  rpm --import "${MYSQL_GPG_KEY_URL}"
+
+  grep -qF \
+    'gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023' \
+    /etc/yum.repos.d/mysql-community.repo \
+    || fail "MySQL 8.0 repository is not configured with RPM-GPG-KEY-mysql-2023."
+
+  # MySQL packages are deliberately installed only after
   # the existing database EBS has been mounted and verified.
 
   log "Base runtime package installation completed"
@@ -233,51 +239,50 @@ configure_mysql_mount() {
 }
 
 install_mysql_server() {
+  local package
   local installed_version
 
-  log "Installing MySQL Community Server ${MYSQL_SERVER_VERSION}"
+  local mysql_packages=(
+    mysql-community-common
+    mysql-community-client-plugins
+    mysql-community-libs
+    mysql-community-icu-data-files
+    mysql-community-client
+    mysql-community-server
+  )
 
-  if rpm -q mysql-community-server >/dev/null 2>&1; then
-    installed_version="$(
-      rpm -q \
-        --qf '%{VERSION}-%{RELEASE}' \
-        mysql-community-server
-    )"
-
-    if [[ "${installed_version}" != "${MYSQL_SERVER_VERSION}" ]]; then
-      fail "MySQL Server ${installed_version} is already installed; expected ${MYSQL_SERVER_VERSION}."
-    fi
-
-    log "Expected MySQL Server version is already installed"
-    return 0
-  fi
+  log "Installing MySQL Community packages ${MYSQL_SERVER_VERSION}"
 
   # Prevent mysqld from being started during package installation.
   systemctl mask mysqld.service >/dev/null 2>&1 || true
 
-  if ! dnf install -y \
-    "mysql-community-server-${MYSQL_SERVER_VERSION}"; then
+  local versioned_packages=()
 
+  for package in "${mysql_packages[@]}"; do
+    versioned_packages+=("${package}-${MYSQL_SERVER_VERSION}")
+  done
+
+  if ! dnf install -y "${versioned_packages[@]}"; then
     systemctl unmask mysqld.service >/dev/null 2>&1 || true
-    fail "Failed to install MySQL Server ${MYSQL_SERVER_VERSION}."
+    fail "Failed to install MySQL Community packages ${MYSQL_SERVER_VERSION}."
   fi
 
   systemctl unmask mysqld.service >/dev/null 2>&1 || true
   systemctl daemon-reload
 
-  installed_version="$(
-    rpm -q \
-      --qf '%{VERSION}-%{RELEASE}' \
-      mysql-community-server
-  )"
+  for package in "${mysql_packages[@]}"; do
+    installed_version="$(
+      rpm -q         --qf '%{VERSION}-%{RELEASE}'         "${package}"
+    )"
 
-  if [[ "${installed_version}" != "${MYSQL_SERVER_VERSION}" ]]; then
-    fail "Installed MySQL Server version is ${installed_version}; expected ${MYSQL_SERVER_VERSION}."
-  fi
+    if [[ "${installed_version}" != "${MYSQL_SERVER_VERSION}" ]]; then
+      fail "${package} version is ${installed_version}; expected ${MYSQL_SERVER_VERSION}."
+    fi
+  done
 
   systemctl stop mysqld.service 2>/dev/null || true
 
-  log "MySQL Community Server ${MYSQL_SERVER_VERSION} installed and verified"
+  log "MySQL Community packages ${MYSQL_SERVER_VERSION} installed and verified"
 }
 
 verify_mysql_identity() {
