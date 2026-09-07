@@ -17,7 +17,13 @@ public class SecurityConfig {
         http
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/","/csrf-token","/landingPage/**","/register").permitAll() // Public URLs
+                        .requestMatchers("/",
+                                "/csrf-token",
+                                "/landingPage/**",
+                                "/register",
+                                "/actuator/health",
+                                "/actuator/prometheus"
+                        ).permitAll() // Public URLs
                         .anyRequest().authenticated() // All other URLs require authentication
                 )
                 .formLogin(form -> form
