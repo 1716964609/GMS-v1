@@ -1,0 +1,48 @@
+name: GMS CI
+
+on:
+  push:
+    branches:
+      - v3.1
+  pull_request:
+    branches:
+      - v3.1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0.44
+        env:
+          MYSQL_DATABASE: tgms
+          MYSQL_USER: ci
+          MYSQL_PASSWORD: gms_ci_password
+          MYSQL_ROOT_PASSWORD: gms_ci_root_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uci -pgms_ci_password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DB_URL: jdbc:mysql://127.0.0.1:3306/tgms
+      DB_USERNAME: ci
+      DB_PASSWORD: gms_ci_password
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build and test
+        run: ./mvnw clean verify
