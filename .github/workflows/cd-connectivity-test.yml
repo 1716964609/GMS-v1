@@ -1,6 +1,9 @@
 name: GMS CD Connectivity Test
 
 on:
+  push:
+    branches:
+      - v3.1
   workflow_dispatch:
 
 jobs:
