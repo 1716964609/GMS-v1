@@ -1,7 +1,8 @@
 resource "aws_instance" "gms" {
-  ami           = data.aws_ssm_parameter.al2023_ami.insecure_value
-  instance_type = "t3a.micro"
-  key_name      = "spring"
+  ami                  = data.aws_ssm_parameter.al2023_ami.insecure_value
+  instance_type        = "t3a.micro"
+  key_name             = "spring"
+  iam_instance_profile = aws_iam_instance_profile.gms.name
 
   user_data = local.gms_bootstrap_user_data
 

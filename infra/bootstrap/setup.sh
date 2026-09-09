@@ -9,7 +9,7 @@ readonly SCRIPT_DIR="$(
 
 readonly GMS_USER="ec2-user"
 readonly GMS_HOME="/home/ec2-user"
-readonly GMS_JAR="${GMS_HOME}/GMS-v2-reconstructed.jar"
+readonly GMS_JAR="${GMS_HOME}/GMS-v3.1.jar"
 
 readonly MYSQL_MOUNT="/var/lib/mysql"
 readonly MYSQL_FS_UUID="208d7a5a-df20-4ae5-822f-8fb8cd468643"
