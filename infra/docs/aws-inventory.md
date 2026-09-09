@@ -1,5 +1,19 @@
 # GMS AWS Inventory
 
+> **Current status — 2026-09-09**
+>
+> この文書は AWS Resource Discovery から Terraform 化までの調査履歴を含む。
+> 前半の `candidate`、`unknown`、`要調査` 等は当時の調査状態として保持している。
+>
+> 現在状態については、後半の Confirmed State および `infra/terraform/`
+> の Terraform configuration を優先する。
+>
+> GMS v3.1 Final Integration Test では Terraform state refresh と
+> `terraform plan -detailed-exitcode` を実施し、exit code `0` および
+> `No changes. Your infrastructure matches the configuration.`
+> を確認済み。
+
+
 ## 1. 目的
 
 この文書は、既存 GMS v2 AWS Environment を Terraform 管理へ移行する前の Resource Inventory を記録する。

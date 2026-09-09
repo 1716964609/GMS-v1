@@ -1,439 +1,365 @@
-# GMS v2 — 翻訳用語管理システム
+# GMS v3.1 — 翻訳用語管理システム
 
-## 1. システム概要
+## Overview
 
-GMSは、日本語・英語を中心とした専門用語を検索・管理するために開発したWebアプリケーションである。
+GMSは、日本語・英語を中心とした専門用語を検索・管理するための
+Java / Spring Boot Webアプリケーションです。
 
-当初は翻訳業務における用語管理を目的として開発したが、現在のGMS v2では、継続的な商用サービスとしてではなく、既存WebアプリケーションおよびAWSインフラストラクチャを用いた個人技術検証用システムとして維持している。
+現在のGMS v3.1は、既存のGMS v2をBaselineとして再構成したうえで、
+以下の技術検証を統合したシステムです。
 
-本リポジトリのv2系統は、AWS上で稼働していたGMS v2を基準としてソースコードおよび実行環境を再構成したものである。
+- Infrastructure as Code
+- Reproducible infrastructure
+- Application observability
+- Automated CI
+- Automated production deployment
+- Artifact integrity verification
+- Infrastructure / application recovery design
 
-| 項目 | 内容 |
-|---|---|
-| システム名称 | GMS |
-| システム種別 | Webアプリケーション |
-| 主用途 | 翻訳用語の検索・管理、技術検証 |
-| 対象言語 | 日本語・英語 |
-| 実行環境 | AWS |
-| アプリケーション | Java / Spring Boot |
-| データベース | MySQL |
+GMS v3.1は継続的な商用サービスではなく、
+既存Webアプリケーションを題材とした個人技術検証用システムとして運用しています。
 
 ---
 
-## 2. システム構成
+## Architecture
 
-### 2.1 全体構成
-
-GMS v2は、AWS EC2上でNginx、Spring BootおよびMySQLを稼働させる単一EC2ベースの構成である。
+Public request path:
 
 ```text
-External Client
-      |
-      v
-    Nginx
-      |
-      | Reverse Proxy
-      v
-Spring Boot Application
-   [::1]:8080
-      |
-      v
-    MySQL
-      |
-      v
-Dedicated EBS Volume
+Client
+  |
+  | HTTPS
+  v
+DreamHost DNS
+  |
+  v
+Amazon CloudFront
+  |
+  +-- ACM
+  +-- AWS WAF
+  |
+  | HTTP / IPv6
+  v
+origin.sunlightjetrans.com
+  |
+  v
+Persistent ENI / IPv6
+  |
+  v
+EC2
+  |
+  v
+Nginx :80
+  |
+  v
+Spring Boot :8080
+  |
+  v
+MySQL
+  |
+  v
+Dedicated EBS
 /var/lib/mysql
 ```
 
-Nginxは外部リクエストを受信し、IPv6 loopback経由でSpring Bootアプリケーションへ転送する。
+Public URL:
 
-Spring Bootアプリケーションは8080番ポートで待ち受け、MySQLをデータストアとして使用する。
+```text
+https://sunlightjetrans.com
+```
 
----
+AWS Region:
 
-## 3. 機能設計
+```text
+ap-northeast-1
+```
 
-### 3.1 用語検索・閲覧機能
+CloudFront用ACM CertificateおよびWAFは `us-east-1` に存在します。
 
-一般利用者向けに、登録済みの用語情報を検索・閲覧する機能を提供する。
-
-| 機能 | 概要 |
-|---|---|
-| 用語検索 | 登録済み用語を検索する |
-| 用語閲覧 | 用語情報を参照する |
-| 用語リスト閲覧 | 登録済みの用語リストを参照する |
-
-v2では利用者側の機能を検索・閲覧中心に整理し、管理機能と分離している。
-
-### 3.2 管理者機能
-
-管理者向けコンソールから用語および用語リストを管理する。
-
-| 機能 | 概要 |
-|---|---|
-| 用語登録 | 新規用語を登録する |
-| 用語編集 | 登録済み用語を更新する |
-| 用語削除 | 登録済み用語を削除する |
-| リスト登録 | 新規用語リストを登録する |
-| リスト編集 | 登録済み用語リストを更新する |
-| リスト削除 | 登録済み用語リストを削除する |
-| バージョン管理 | 用語およびリストの変更履歴を管理する |
+DreamHost DNSは現在のAWS Terraform管理境界外です。
 
 ---
 
-## 4. データ設計
+## Application Stack
 
-### 4.1 主要データ
-
-GMSでは、主に以下のデータを管理する。
-
-| データ | 概要 |
-|---|---|
-| Users | ユーザー情報 |
-| Terms | 用語情報 |
-| Lists | 用語リスト情報 |
-
-用語および用語リストについては、変更履歴を保持するためのバージョン管理機能を備える。
-
-### 4.2 外部用語データ
-
-GMSでは分野別の専門用語データを利用する場合がある。
-
-ただし、著作権およびライセンス上の理由から、実際の専門用語データセットは本リポジトリには含めない。
-
-本リポジトリでは、アプリケーションソースコードおよびシステム構成のみを管理対象とする。
-
----
-
-## 5. アプリケーション構成
-
-### 5.1 Backend
-
-| 項目 | 内容 |
+| Component | Technology |
 |---|---|
 | Language | Java 17 |
 | Framework | Spring Boot |
 | ORM | Hibernate |
 | Connection Pool | HikariCP |
-| Database Driver | MySQL Connector |
-| Embedded Server | Tomcat |
-| Build Tool | Maven |
+| Database | MySQL |
+| Web Server | Nginx |
+| Build | Maven Wrapper |
+| Process Management | systemd |
+| Metrics | Spring Boot Actuator / Micrometer |
+| Metrics Collection | Prometheus |
+| Visualization | Grafana |
 
-Spring BootアプリケーションはFat JARとしてビルドし、EC2上で実行する。
-
-### 5.2 Frontend
-
-| 項目 | 内容 |
-|---|---|
-| HTML | HTML |
-| Style | CSS |
-| Client Logic | JavaScript |
-
-フロントエンドはSpring Bootアプリケーション内の静的リソースとして管理する。
-
----
-
-## 6. インフラストラクチャ設計
-
-### 6.1 Compute
-
-アプリケーション実行環境としてAWS EC2を使用する。
-
-v2ではAmazon EC2 Spot Instanceを利用している。
-
-EC2上では主に以下のコンポーネントを稼働させる。
+Production application:
 
 ```text
-EC2
-├── Nginx
-├── Spring Boot
-├── MySQL
-└── systemd
+/home/ec2-user/GMS-v3.1.jar
 ```
 
-### 6.2 Web Server / Reverse Proxy
-
-NginxをSpring BootのReverse Proxyとして使用する。
-
-現在のv2構成では、NginxからSpring Bootへ以下のように転送する。
-
-```nginx
-proxy_pass http://[::1]:8080;
-```
-
-また、外部リクエスト情報をSpring Bootへ引き渡すため、以下のForwarded Headerを使用する。
-
-```text
-Host
-X-Real-IP
-X-Forwarded-For
-X-Forwarded-Proto
-```
-
-### 6.3 Application Process Management
-
-Spring Bootアプリケーションはsystemd serviceとして管理する。
-
-サービス名：
+systemd service:
 
 ```text
 tgms.service
 ```
 
-systemdにより以下を管理する。
+---
 
-- アプリケーション起動
-- OS起動時の自動起動
-- プロセス異常終了時の再起動
-- 標準出力・標準エラーのログ出力
-- MySQLとの起動順序
+## Infrastructure as Code
+
+AWS infrastructure is managed from:
+
+```text
+infra/terraform/
+```
+
+The Terraform configuration manages the current GMS production infrastructure,
+including the core networking, compute, persistent database storage,
+CloudFront, ACM, WAF, IAM, GitHub OIDC, and deployment artifact S3 resources.
+
+Verification:
+
+```bash
+cd infra/terraform
+
+terraform fmt -check
+terraform validate
+terraform plan
+```
+
+Final integration testing confirmed:
+
+```text
+No changes. Your infrastructure matches the configuration.
+```
+
+The MySQL data EBS is treated as persistent data and is protected independently
+from disposable compute.
 
 ---
 
-## 7. ストレージ設計
+## Database Persistence and Recovery
 
-### 7.1 Root Volume
-
-EC2のOSおよびアプリケーション実行環境はRoot EBS Volumeに配置する。
-
-Root VolumeはEC2インスタンスのライフサイクルに従う構成としている。
-
-```text
-EC2
-└── Root EBS
-    ├── Amazon Linux
-    ├── Java
-    ├── Nginx
-    ├── systemd
-    └── Application Runtime
-```
-
-v2固定時点のRoot VolumeについてはEBS Snapshotを取得している。
-
-### 7.2 MySQL Data Volume
-
-MySQLのデータディレクトリはRoot Volumeとは分離し、専用EBS Volumeを使用する。
-
-Mount Point：
+MySQL data is stored on a dedicated EBS volume mounted at:
 
 ```text
 /var/lib/mysql
 ```
 
-構成：
+Recovery order for GMS v3.1:
 
 ```text
-EC2
- |
- +-- Root EBS
- |
- +-- MySQL Data EBS
-       |
-       +-- /var/lib/mysql
+1. Existing MySQL EBS
+2. Restore EBS from MySQL snapshot
+3. SQL dump is not part of the current recovery design
 ```
 
-MySQL Data VolumeはEC2削除時にも保持される構成とし、ComputeとPersistent Dataのライフサイクルを分離している。
-
-v2固定時点ではMySQLを正常停止した状態でEBS Snapshotを取得している。
+Compute and persistent database data intentionally have separate lifecycles.
 
 ---
 
-## 8. OS・Runtime構成
+## Observability
 
-### 8.1 Operating System
-
-AWS EC2上でAmazon Linux 2023を使用する。
-
-### 8.2 Runtime Configuration
-
-v2で使用している主要なOS設定ファイルについては、以下のディレクトリに保存している。
+GMS exposes Spring Boot metrics through:
 
 ```text
-infra/
-└── legacy-v2/
-    ├── fstab
-    ├── nginx/
-    │   ├── nginx.conf
-    │   └── default.conf
-    └── systemd/
-        └── tgms.service
+/actuator/health
+/actuator/prometheus
 ```
 
-これらはv2稼働環境を再確認・再構築するためのLegacy Runtime Configurationとして保存する。
+Monitoring configuration is stored in Git:
+
+```text
+infra/monitoring/
+├── prometheus/
+│   └── prometheus.yml
+└── grafana/
+    ├── dashboards/
+    │   └── gms-overview.json
+    └── provisioning/
+        ├── dashboards/
+        │   └── dashboards.yml
+        └── datasources/
+            └── prometheus.yml
+```
+
+The Grafana dashboard contains:
+
+- JVM Heap Memory Used
+- HTTP Request Rate
+- HTTP Average Latency
+- HikariCP Connection Pool
+
+Prometheus and Grafana are currently intended to run locally on a Mac when
+monitoring is required.
+
+They are not deployed as 24/7 production monitoring services in GMS v3.1.
+
+A typical monitoring path is:
+
+```text
+Production GMS
+    |
+    | /actuator/prometheus
+    v
+SSH tunnel
+    |
+    v
+Local Prometheus
+    |
+    v
+Local Grafana
+```
+
+The monitoring configuration can be reconstructed from the Git-managed files.
 
 ---
 
-## 9. セキュリティ設計
+## Continuous Integration
 
-### 9.1 Application Security
-
-アプリケーションレベルではSpring Securityを使用する。
-
-主な対策：
-
-| 項目 | 内容 |
-|---|---|
-| Authentication / Authorization | Spring Security |
-| CSRF Protection | CSRF Token |
-| Session Security | Secure Cookie |
-| Forwarded Header | Spring Boot Forward Header対応 |
-
-### 9.2 Secret Management
-
-データベースパスワードなどのSecret情報はGitリポジトリに保存しない。
-
-Spring Bootでは環境変数からDatabase Passwordを取得する。
-
-```properties
-spring.datasource.password=${DB_PASSWORD}
-```
-
-以下の情報はGit管理対象外とする。
-
-- Database Password
-- AWS Credentials
-- Private Key
-- SSH Private Key
-- TLS Private Key
-- その他のSecret / Token
-
----
-
-## 10. GMS v2再構成
-
-### 10.1 背景
-
-GMS v2のAWS稼働環境は存在していたが、開発時の完全なv2ソースコードが手元に残っていなかった。
-
-そのため、以下の情報を使用してv2ソースコードを再構成した。
+GitHub Actions workflow:
 
 ```text
-GMS v1 Source Code
-        +
-Deployed GMS v2 Artifact
-        +
-GMS v2 Resources / Configuration
-        ↓
-GMS v2 Reconstructed Source
+.github/workflows/ci.yml
 ```
 
-### 10.2 Javaコード比較
+CI runs on pushes and pull requests targeting the `v3.1` branch.
 
-v1ソースコードと、AWS上で稼働していたv2 JAR内のJava classを比較した。
-
-Java application classについて、コンパイル条件差によるbytecode差分を除いて確認した結果、v1からv2におけるJava Backend Logicには大きな変更がないことを確認した。
-
-v2での主要な変更は、主に以下の領域に存在していた。
-
-- Application Configuration
-- Database Connection Configuration
-- Frontend Resources
-- User Interface
-- Deployment Environment
-
-### 10.3 Functional Verification
-
-再構成したソースコードからFat JARを生成し、AWS上の既存v2環境へ配置した。
+Build environment:
 
 ```text
-Source
-  |
-  v
-Maven Build
-  |
-  v
-GMS-v2-reconstructed.jar
-  |
-  v
-AWS EC2
+Java 17
+MySQL 8.0.44
+Maven
 ```
 
-実環境のNginx、MySQLおよび既存データを使用して起動し、Webブラウザから主要機能が正常に動作することを確認した。
-
-したがって、本リポジトリのv2は元の開発ソースとの完全なbyte-to-byte一致を保証するものではなく、AWS上の実際のv2環境を基準として機能的に再構成・検証したBaselineである。
-
----
-
-## 11. v2固定
-
-GMS v2の固定作業では、アプリケーションソースだけでなく、実際の稼働環境についてもBaselineを保存した。
-
-### 11.1 Git
-
-以下をGitで管理する。
-
-```text
-Application Source
-Frontend Resources
-Application Configuration
-Nginx Configuration
-systemd Configuration
-fstab
-```
-
-v2再構成用Branch：
-
-```text
-v2-reconstructed
-```
-
-### 11.2 AWS Snapshot
-
-v2固定時点のAWS環境について以下のSnapshotを取得している。
-
-```text
-Root EBS
-└── Baseline Snapshot
-
-MySQL Data EBS
-└── Baseline Snapshot
-```
-
-Snapshot取得時にはSpring BootおよびMySQLを停止し、MySQLの正常終了を確認した上でデータを固定した。
-
-Snapshot作成後はMySQLおよびGMSを再起動し、アプリケーションの稼働を確認している。
-
----
-
-## 12. Build
-
-Maven Wrapperを使用してアプリケーションをビルドする。
+Primary verification command:
 
 ```bash
-./mvnw clean package
+./mvnw clean verify
 ```
 
-ローカル環境にMySQLが存在しない場合など、テスト用Database Environmentが準備されていない状態では以下のようにPackageのみ実行できる。
+A successful build produces the JAR artifact used by the deployment job.
+
+---
+
+## Continuous Deployment
+
+Production deployment runs after a successful CI build on pushes to:
+
+```text
+v3.1
+```
+
+Deployment path:
+
+```text
+Git push
+   |
+   v
+GitHub Actions CI
+   |
+   v
+Verified JAR artifact
+   |
+   v
+GitHub OIDC
+   |
+   v
+AWS IAM Role
+   |
+   v
+S3 release ledger
+   |
+   v
+AWS Systems Manager Run Command
+   |
+   v
+Production EC2
+   |
+   v
+SHA256 verification
+   |
+   v
+GMS-v3.1.jar
+   |
+   v
+tgms.service restart
+   |
+   v
+/actuator/health
+```
+
+No long-lived AWS access key or EC2 SSH private key is stored in GitHub Actions.
+
+Release artifacts are stored under:
+
+```text
+s3://gms-artifacts-180294215932-ap-northeast-1/releases/<commit-sha>/
+```
+
+Each release contains:
+
+```text
+GMS-v3.1.jar
+SHA256
+```
+
+The deployment process verifies SHA256 before switching the production JAR.
+
+A previous JAR is retained during deployment so that a failed health check can
+trigger rollback.
+
+---
+
+## Build
+
+Run tests and build:
+
+```bash
+./mvnw clean verify
+```
+
+Build without tests when explicitly required:
 
 ```bash
 ./mvnw clean package -DskipTests
 ```
 
-生成されたSpring Boot Fat JARを実行環境へ配置する。
+Generated artifacts are written under:
+
+```text
+target/
+```
 
 ---
 
-## 13. Repository Structure
-
-主要ディレクトリ構成：
+## Repository Structure
 
 ```text
 .
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   └── resources/
-│   └── test/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 │
 ├── infra/
-│   └── legacy-v2/
-│       ├── fstab
-│       ├── nginx/
-│       │   ├── nginx.conf
-│       │   └── default.conf
-│       └── systemd/
-│           └── tgms.service
+│   ├── bootstrap/
+│   ├── docs/
+│   ├── legacy-v2/
+│   ├── monitoring/
+│   ├── reconstruction-test/
+│   └── terraform/
 │
+├── src/
+│   ├── main/
+│   └── test/
+│
+├── .gitignore
 ├── pom.xml
 ├── mvnw
 └── README.md
@@ -441,39 +367,89 @@ Maven Wrapperを使用してアプリケーションをビルドする。
 
 ---
 
-## 14. v2設計上の位置付け
+## Historical Baseline
 
-GMS v2は、AWS上で動作する既存アプリケーションを再構成し、現行構成を固定するためのBaselineとして位置付ける。
+GMS v3.1 was built from the reconstructed and production-verified GMS v2
+baseline.
 
-v2では以下の状態を確保している。
+The v2 reconstruction and original runtime configuration remain preserved for
+historical and recovery reference under:
 
 ```text
-Source Code
-    +
-Runtime Configuration
-    +
-Root Volume Snapshot
-    +
-Persistent Database Snapshot
-    =
-Reconstructable v2 Baseline
+infra/legacy-v2/
 ```
 
-今後のシステム改善では、このv2 Baselineを基準としてInfrastructure as Code、Observability、CI/CDおよびDisaster Recoveryの改善を行う。
+The detailed AWS discovery, dependency analysis, reconstruction process, and
+architecture investigation are retained under:
+
+```text
+infra/docs/
+infra/reconstruction-test/
+```
+
+These documents intentionally preserve parts of the investigation history.
+When older candidate or pending states conflict with later confirmed sections,
+the later confirmed state takes precedence.
 
 ---
 
-## 15. 今後の拡張
+## GMS v3.1 Final Integration Test
 
-次期構成では、v2で固定した実環境を基準として以下を検討する。
+The final integration test verifies the system as a whole rather than individual
+features in isolation.
 
-- TerraformによるAWS Infrastructure as Code
-- EC2 Computeの再作成可能化
-- Persistent DataとCompute Lifecycleの明確な分離
-- Spring Boot Actuator / MicrometerによるMetrics公開
-- PrometheusによるMetrics Collection
-- GrafanaによるVisualization
-- GitHub ActionsによるCI/CD
-- Infrastructure再構築およびDisaster Recovery Test
+Verified areas:
 
-これらについてはv2の固定完了後、次期バージョンとして段階的に実装する。
+```text
+Git source of truth
+Terraform / AWS infrastructure
+Production EC2 runtime
+Dedicated MySQL EBS
+Spring Boot health
+Actuator / Micrometer metrics
+Prometheus scraping
+Grafana provisioning
+GitHub Actions CI
+GitHub Actions CD
+GitHub OIDC
+S3 release ledger
+SSM production deployment
+Artifact SHA256 integrity
+External HTTPS path
+Application database-backed search
+```
+
+The final completion condition is:
+
+```text
+Git
+ -> CI
+ -> Artifact
+ -> OIDC
+ -> S3
+ -> SSM
+ -> EC2
+ -> Spring Boot
+ -> Metrics
+ -> Prometheus
+ -> Grafana
+```
+
+with production functionality verified and Terraform reporting no unintended
+infrastructure differences.
+
+---
+
+## Version
+
+Current development line:
+
+```text
+GMS v3.1
+```
+
+Previous reconstructed baseline:
+
+```text
+GMS v2
+```

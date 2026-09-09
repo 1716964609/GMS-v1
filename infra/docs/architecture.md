@@ -1,5 +1,21 @@
 # GMS v3.1 Architecture
 
+> **Current status — 2026-09-09**
+>
+> GMS v3.1 の Terraform、Observability、CI/CD、および Final Integration Test は完了段階にある。
+> 本文には v3.1 構築途中の調査記録、candidate 判定、PENDING / NEXT 状態も
+> 時系列資料として意図的に残している。
+>
+> 古い調査状態と後半の Confirmed State または現在の Terraform configuration が
+> 競合する場合、**現在の Git / Terraform configuration と後から追記された
+> Confirmed State を優先する。**
+>
+> Final Integration Test では `terraform plan -detailed-exitcode` が exit code `0`、
+> `No changes. Your infrastructure matches the configuration.` となることを確認済み。
+> Production runtime、Actuator、Prometheus、Grafana provisioning、CI/CD、
+> S3 release artifact、SHA256 integrity、および公開GMS機能も確認済み。
+
+
 ## 1. この文書の目的
 
 この文書は、現在稼働している GMS v2 の実構成を確認・記録し、
