@@ -54,3 +54,266 @@ jobs:
           path: target/*.jar
           if-no-files-found: error
           retention-days: 7
+
+  deploy:
+    name: Deploy to production
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/v3.1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      id-token: write
+
+    concurrency:
+      group: gms-production-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Download verified JAR artifact
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: gms-jar
+          path: deploy-artifact
+
+      - name: Prepare release artifact
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t JARS < <(find deploy-artifact -maxdepth 1 -type f -name '*.jar')
+
+          if [[ "${#JARS[@]}" -ne 1 ]]; then
+            echo "Expected exactly one JAR, found ${#JARS[@]}"
+            printf '%s\n' "${JARS[@]}"
+            exit 1
+          fi
+
+          cp "${JARS[0]}" /tmp/GMS-v3.1.jar
+
+          JAR_SHA=$(sha256sum /tmp/GMS-v3.1.jar | awk '{print $1}')
+
+          printf '%s  %s\n' \
+            "$JAR_SHA" \
+            "GMS-v3.1.jar" \
+            > /tmp/SHA256
+
+          echo "jar_sha=$JAR_SHA" >> "$GITHUB_OUTPUT"
+
+          echo "Release commit: $GITHUB_SHA"
+          echo "Artifact SHA256: $JAR_SHA"
+
+      - name: Configure AWS credentials with GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: arn:aws:iam::180294215932:role/gms-github-deploy-role
+          aws-region: ap-northeast-1
+          allowed-account-ids: 180294215932
+          role-session-name: gms-deploy-${{ github.run_id }}
+
+      - name: Upload verified artifact to S3
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RELEASE_URI="s3://gms-artifacts-180294215932-ap-northeast-1/releases/${GITHUB_SHA}"
+
+          aws s3 cp \
+            /tmp/GMS-v3.1.jar \
+            "${RELEASE_URI}/GMS-v3.1.jar" \
+            --region ap-northeast-1
+
+          aws s3 cp \
+            /tmp/SHA256 \
+            "${RELEASE_URI}/SHA256" \
+            --region ap-northeast-1
+
+      - name: Deploy release through SSM
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ steps.release.outputs.jar_sha }}
+        run: |
+          set -euo pipefail
+
+          cat > /tmp/gms-deploy.sh <<SCRIPT
+          #!/usr/bin/env bash
+          set -Eeuo pipefail
+
+          BUCKET="gms-artifacts-180294215932-ap-northeast-1"
+          RELEASE_SHA="${GITHUB_SHA}"
+          EXPECTED_SHA="${EXPECTED_SHA}"
+          S3_ENDPOINT="https://s3.dualstack.ap-northeast-1.amazonaws.com"
+
+          CURRENT="/home/ec2-user/GMS-v3.1.jar"
+          PREVIOUS="/home/ec2-user/GMS-v3.1.jar.previous"
+          STAGED="/home/ec2-user/GMS-v3.1.jar.new"
+          RELEASE_DIR="/tmp/gms-release-\${RELEASE_SHA}"
+
+          SWAPPED=0
+
+          cleanup() {
+            rm -rf "\${RELEASE_DIR}"
+            rm -f "\${STAGED}"
+          }
+
+          rollback() {
+            trap - ERR
+            echo "Deployment failed."
+
+            if [[ "\${SWAPPED}" -eq 1 && -f "\${PREVIOUS}" ]]; then
+              echo "Rolling back to previous GMS JAR..."
+
+              cp -p "\${PREVIOUS}" "\${CURRENT}"
+              systemctl restart tgms.service || true
+
+              for i in \$(seq 1 30); do
+                if HEALTH=\$(curl -fsS http://127.0.0.1:8080/actuator/health 2>/dev/null) \
+                  && grep -q '"status":"UP"' <<<"\${HEALTH}"; then
+                  echo "Rollback succeeded: \${HEALTH}"
+                  cleanup
+                  exit 1
+                fi
+
+                sleep 2
+              done
+
+              echo "Rollback health check failed."
+              journalctl -u tgms.service -n 80 --no-pager || true
+            fi
+
+            cleanup
+            exit 1
+          }
+
+          trap rollback ERR
+
+          rm -rf "\${RELEASE_DIR}"
+          mkdir -p "\${RELEASE_DIR}"
+
+          echo "Downloading release \${RELEASE_SHA} from S3..."
+
+          aws s3 cp \
+            "s3://\${BUCKET}/releases/\${RELEASE_SHA}/GMS-v3.1.jar" \
+            "\${RELEASE_DIR}/GMS-v3.1.jar" \
+            --region ap-northeast-1 \
+            --endpoint-url "\${S3_ENDPOINT}"
+
+          aws s3 cp \
+            "s3://\${BUCKET}/releases/\${RELEASE_SHA}/SHA256" \
+            "\${RELEASE_DIR}/SHA256" \
+            --region ap-northeast-1 \
+            --endpoint-url "\${S3_ENDPOINT}"
+
+          echo "Verifying SHA256..."
+
+          cd "\${RELEASE_DIR}"
+          sha256sum -c SHA256
+
+          ACTUAL_SHA=\$(sha256sum GMS-v3.1.jar | awk '{print \$1}')
+
+          if [[ "\${ACTUAL_SHA}" != "\${EXPECTED_SHA}" ]]; then
+            echo "SHA256 mismatch."
+            echo "Expected: \${EXPECTED_SHA}"
+            echo "Actual:   \${ACTUAL_SHA}"
+            false
+          fi
+
+          cp GMS-v3.1.jar "\${STAGED}"
+          chown ec2-user:ec2-user "\${STAGED}"
+          chmod 0644 "\${STAGED}"
+
+          if [[ -f "\${CURRENT}" ]]; then
+            cp -p "\${CURRENT}" "\${PREVIOUS}"
+          fi
+
+          mv -f "\${STAGED}" "\${CURRENT}"
+          SWAPPED=1
+
+          echo "Restarting GMS..."
+          systemctl restart tgms.service
+
+          HEALTHY=0
+
+          for i in \$(seq 1 30); do
+            if HEALTH=\$(curl -fsS http://127.0.0.1:8080/actuator/health 2>/dev/null) \
+              && grep -q '"status":"UP"' <<<"\${HEALTH}"; then
+              echo "Deployment health check passed: \${HEALTH}"
+              HEALTHY=1
+              break
+            fi
+
+            sleep 2
+          done
+
+          if [[ "\${HEALTHY}" -ne 1 ]]; then
+            echo "Deployment health check failed."
+            journalctl -u tgms.service -n 80 --no-pager || true
+            false
+          fi
+
+          CURRENT_SHA=\$(sha256sum "\${CURRENT}" | awk '{print \$1}')
+
+          echo "Deployed commit: \${RELEASE_SHA}"
+          echo "Production SHA256: \${CURRENT_SHA}"
+
+          trap - ERR
+          cleanup
+          SCRIPT
+
+          chmod 700 /tmp/gms-deploy.sh
+
+          DEPLOY_B64=$(base64 -w0 /tmp/gms-deploy.sh)
+
+          jq -n \
+            --arg command "echo '$DEPLOY_B64' | base64 -d > /tmp/gms-deploy.sh && chmod 700 /tmp/gms-deploy.sh && /tmp/gms-deploy.sh" \
+            '{commands: [$command]}' \
+            > /tmp/ssm-parameters.json
+
+          CMD_ID=$(aws ssm send-command \
+            --region ap-northeast-1 \
+            --instance-ids i-08e35c2a08562e6e7 \
+            --document-name AWS-RunShellScript \
+            --timeout-seconds 180 \
+            --parameters file:///tmp/ssm-parameters.json \
+            --query 'Command.CommandId' \
+            --output text)
+
+          echo "SSM command: $CMD_ID"
+
+          STATUS=""
+
+          for i in $(seq 1 90); do
+            STATUS=$(aws ssm get-command-invocation \
+              --region ap-northeast-1 \
+              --command-id "$CMD_ID" \
+              --instance-id i-08e35c2a08562e6e7 \
+              --query 'Status' \
+              --output text 2>/dev/null || true)
+
+            case "$STATUS" in
+              Success|Failed|Cancelled|TimedOut)
+                break
+                ;;
+            esac
+
+            sleep 2
+          done
+
+          echo "Final SSM status: $STATUS"
+
+          aws ssm get-command-invocation \
+            --region ap-northeast-1 \
+            --command-id "$CMD_ID" \
+            --instance-id i-08e35c2a08562e6e7 \
+            --query '{
+              Status:Status,
+              ResponseCode:ResponseCode,
+              Output:StandardOutputContent,
+              Error:StandardErrorContent
+            }'
+
+          if [[ "$STATUS" != "Success" ]]; then
+            exit 1
+          fi
