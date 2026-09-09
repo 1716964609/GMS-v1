@@ -1,7 +1,11 @@
 name: GMS CD OIDC Smoke Test
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - v3.1
+    paths:
+      - ".github/workflows/cd-oidc-smoke.yml"
 
 permissions:
   contents: read
